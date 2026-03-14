@@ -7710,23 +7710,7 @@ function generatePdf() {
 
   const fullHTML = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${escHtml(title)}</title>
     <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Inter:wght@400;700&family=DM+Sans:wght@400;700&family=Lora:wght@400;700&family=IBM+Plex+Mono:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>${pageCSS}</style></head><body>${wrappedBody}
-<!-- Export menu portal - outside all overflow:hidden containers -->
-<div id="exportMenu" style="display:none;position:fixed;background:var(--panel);border:1px solid var(--border2);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(0,0,0,.2);padding:4px;z-index:99999;min-width:160px;flex-direction:column;">
-  <button class="ctx-item" onclick="openPdfExportModal();closeExportMenu()" style="font-size:12px;">
-    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5"/><path d="M9 15h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    .pdf (customizable)
-  </button>
-  <button class="ctx-item" onclick="exportScript();closeExportMenu()" style="font-size:12px;">
-    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    .wrotenote (full)
-  </button>
-  <button class="ctx-item" onclick="exportScriptTxt();closeExportMenu()" style="font-size:12px;">
-    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-    .txt (plain text)
-  </button>
-</div>
-</body></html>`;
+    <style>${pageCSS}</style></head><body>${wrappedBody}</body></html>`;
 
   // Use hidden iframe for cleaner print-to-PDF
   let pdfFrame = document.getElementById('_pdfFrame');
@@ -12320,5 +12304,21 @@ function initBgPresets() {
 }
 
 </script>
+
+<!-- Export menu portal - outside all overflow:hidden containers -->
+<div id="exportMenu" style="display:none;position:fixed;background:var(--panel);border:1px solid var(--border2);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(0,0,0,.2);padding:4px;z-index:99999;min-width:160px;flex-direction:column;">
+  <button class="ctx-item" onclick="openPdfExportModal();closeExportMenu()" style="font-size:12px;">
+    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5"/><path d="M9 15h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    .pdf (customizable)
+  </button>
+  <button class="ctx-item" onclick="exportScript();closeExportMenu()" style="font-size:12px;">
+    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    .wrotenote (full)
+  </button>
+  <button class="ctx-item" onclick="exportScriptTxt();closeExportMenu()" style="font-size:12px;">
+    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    .txt (plain text)
+  </button>
+</div>
 </body>
 </html>
