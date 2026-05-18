@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WroteNote V14</title>
+<title>WroteNote V15</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -488,9 +488,11 @@ html, body {
 }
 
 /* ── BODY ── */
-.app-body { flex: 1; overflow: hidden; position: relative; }
-.panel { display: none; height: 100%; overflow-y: auto; }
-.panel.active { display: flex; flex-direction: column; animation: panelIn .28s cubic-bezier(.25,.46,.45,.94) both; }
+.app-body { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; min-height: 0; }
+.panel { display: none; flex: 1; min-height: 0; overflow-y: auto; }
+/* panel-flex: when active, uses flex layout instead of default block */
+.panel.active.panel-flex { display: flex; flex-direction: column; }
+.panel.active { display: flex; flex-direction: column; min-height: 0; animation: panelIn .28s cubic-bezier(.25,.46,.45,.94) both; }
 @keyframes panelIn {
   from { opacity: 0; transform: translateX(12px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -501,398 +503,9 @@ html, body {
 [data-view="grid"] .tab { border-radius: 0; }
 [data-view="grid"] .nav-pill-container, [data-view="grid"] .settings-pill-container { border-radius: 0; }
 
-/* ════════════════════════════════════
-   EDITOR MODE — Settings cards
-   ════════════════════════════════════ */
-.editor-mode-cards { display:flex; gap:10px; flex-wrap:wrap; }
-.emode-card {
-  flex:1; min-width:120px; max-width:160px;
-  border:2px solid var(--border); border-radius:14px;
-  padding:12px 10px 10px; cursor:pointer;
-  background:var(--bg2); transition:all .15s;
-  display:flex; flex-direction:column; gap:6px;
-}
-.emode-card:hover { border-color:var(--c1); background:var(--c1-soft); }
-.emode-card.active { border-color:var(--c1); background:var(--c1-soft); }
-.emode-preview {
-  height:70px; border-radius:8px;
-  background:var(--panel); border:1px solid var(--border);
-  padding:8px; display:flex; flex-direction:column; gap:4px;
-  overflow:hidden;
-}
-.emode-prev-scene { height:8px; border-radius:3px; background:var(--c1); opacity:.7; width:90%; }
-.emode-prev-action { height:5px; border-radius:2px; background:var(--border2); width:100%; }
-.emode-prev-dialogue { height:5px; border-radius:2px; background:var(--c3); opacity:.5; width:75%; margin-left:10%; }
-
-.emode-prev-trad { background:#fff; }
-[data-theme="dark"] .emode-prev-trad { background:#1e1e1e; }
-.emode-trad-line { height:4px; border-radius:2px; background:var(--text2); opacity:.8; margin:2px 0; }
-.emode-trad-line.bold  { background:var(--text); height:5px; width:70%; }
-.emode-trad-line.short { width:40%; }
-.emode-trad-line.center { margin-left:auto; margin-right:auto; }
-.emode-trad-line.medium { width:60%; }
-.emode-trad-line.indent { margin-left:20%; }
-
-.emode-prev-focus { background:#0a0a0a; align-items:center; justify-content:center; }
-.emode-focus-cursor { width:2px; height:22px; background:#e0e0e0; border-radius:1px; animation:focusBlink 1s step-end infinite; }
-@keyframes focusBlink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-.emode-label { font-size:13px; font-weight:700; color:var(--text); }
-.emode-sub   { font-size:10px; color:var(--text3); line-height:1.4; }
-
-/* ════════════════════════════════════
-   TRADITIONAL MODE — WritersDuet / Final Draft style
-   ════════════════════════════════════ */
-
-/* Page & scroll area */
-[data-editor-mode="traditional"] .editor-scroll {
-  background: #2a2a2a;
-  padding: 40px 24px 100px;
-}
-[data-editor-mode="traditional"] .editor-content {
-  background: #fff !important;
-  color: #111 !important;
-  width: 816px;
-  max-width: 100%;
-  margin: 0 auto;
-  /* Standard screenplay margins: 1.5" left, 1" right, 1" top/bottom */
-  padding: 72px 72px 72px 108px !important;
-  box-shadow: 0 4px 24px rgba(0,0,0,.45);
-  min-height: 1056px;
-  box-sizing: border-box;
-  gap: 0 !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  line-height: 1.5 !important;
-  border-radius: 0 !important;
-}
-
-/* ── Strip ALL WroteNote visual chrome ── */
-[data-editor-mode="traditional"] .block-controls,
-[data-editor-mode="traditional"] .block-img-btn,
-[data-editor-mode="traditional"] .scene-drag-handle,
-[data-editor-mode="traditional"] .scene-collapse-btn,
-[data-editor-mode="traditional"] .scene-num-badge,
-[data-editor-mode="traditional"] .scene-spacer { display: none !important; }
-
-/* ── Scene group & heading ── */
-[data-editor-mode="traditional"] .scene-group {
-  margin: 24px 0 0 !important;
-  gap: 0 !important;
-}
-[data-editor-mode="traditional"] .scene-heading-row {
-  padding: 0 !important;
-  gap: 0 !important;
-  background: none !important;
-}
-[data-editor-mode="traditional"] .scene-slugline {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  font-weight: 700 !important;
-  color: #111 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .02em !important;
-  line-height: 1.5 !important;
-  margin-bottom: 12px !important;
-  cursor: text !important;
-  width: 100% !important;
-  outline: none !important;
-}
-
-/* ── Element rows ── */
-[data-editor-mode="traditional"] .element-row {
-  display: block !important;
-  padding: 0 !important;
-  margin: 0 0 6px !important;
-  gap: 0 !important;
-  background: none !important;
-}
-
-/* ── Action ── */
-[data-editor-mode="traditional"] .block-action {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  color: #111 !important;
-  line-height: 1.5 !important;
-  margin-bottom: 12px !important;
-  cursor: text !important;
-  width: 100% !important;
-  outline: none !important;
-  white-space: pre-wrap !important;
-}
-
-/* ── Dialogue wrapper ── */
-[data-editor-mode="traditional"] .block-dialogue-wrap {
-  all: unset !important;
-  display: block !important;
-  margin: 0 0 12px 0 !important;
-  padding: 0 !important;
-}
-
-/* ── Character name ── (~3.7" from left = 266px, minus page left padding of 108) ── */
-[data-editor-mode="traditional"] .block-char-name {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  font-weight: 700 !important;
-  color: #111 !important;
-  text-transform: uppercase !important;
-  line-height: 1.5 !important;
-  margin-left: 158px !important;
-  cursor: text !important;
-  outline: none !important;
-}
-
-/* ── Parenthetical ── (~3.1" = 222px, minus 108) ── */
-[data-editor-mode="traditional"] .block-paren {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  color: #111 !important;
-  line-height: 1.5 !important;
-  margin-left: 96px !important;
-  cursor: text !important;
-  outline: none !important;
-}
-
-/* ── Dialogue text ── (~2.5" = 180px, minus 108; max ~3.5" wide) ── */
-[data-editor-mode="traditional"] .block-dialogue-text {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  color: #111 !important;
-  line-height: 1.5 !important;
-  margin-left: 72px !important;
-  margin-right: 72px !important;
-  cursor: text !important;
-  outline: none !important;
-}
-
-/* ── Transition ── (right-aligned) */
-[data-editor-mode="traditional"] .block-transition {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 12pt !important;
-  font-weight: 700 !important;
-  color: #111 !important;
-  text-align: right !important;
-  text-transform: uppercase !important;
-  margin: 12px 0 !important;
-  cursor: text !important;
-  outline: none !important;
-  width: 100% !important;
-}
-
-/* ── Note ── */
-[data-editor-mode="traditional"] .block-note {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 11pt !important;
-  color: #555 !important;
-  font-style: italic !important;
-  border-left: 2px solid #ccc !important;
-  padding-left: 10px !important;
-  margin: 8px 0 !important;
-  cursor: text !important;
-  outline: none !important;
-}
 
 
-/* Fix 7: traditional/focus mode contenteditable requires user-select after all:unset */
-[data-editor-mode="traditional"] [contenteditable],
-[data-editor-mode="focus"] [contenteditable] {
-  user-select: text !important;
-  -webkit-user-select: text !important;
-}
-/* Dark mode traditional */
-[data-theme="dark"][data-editor-mode="traditional"] .editor-scroll { background: #111; }
-[data-theme="dark"][data-editor-mode="traditional"] .editor-content {
-  background: #1a1a1a !important; color: #e0e0e0 !important;
-}
-[data-theme="dark"][data-editor-mode="traditional"] .scene-slugline,
-[data-theme="dark"][data-editor-mode="traditional"] .block-action,
-[data-theme="dark"][data-editor-mode="traditional"] .block-char-name,
-[data-theme="dark"][data-editor-mode="traditional"] .block-dialogue-text,
-[data-theme="dark"][data-editor-mode="traditional"] .block-paren,
-[data-theme="dark"][data-editor-mode="traditional"] .block-transition { color: #e0e0e0 !important; }
-[data-theme="dark"][data-editor-mode="traditional"] .block-note { color: #888 !important; border-color: #444 !important; }
 
-/* ════════════════════════════════════
-   FOCUS MODE — Typewriter / void
-   ════════════════════════════════════ */
-
-/* Full panel takeover */
-[data-editor-mode="focus"] #panel-editor {
-  background: #0d0d0d;
-}
-[data-editor-mode="focus"] .script-header,
-[data-editor-mode="focus"] .editor-banner,
-[data-editor-mode="focus"] .editor-toolbar-wrap,
-[data-editor-mode="focus"] #findReplaceBar { display: none !important; }
-
-/* Scroll area — typewriter: keep active line centered */
-[data-editor-mode="focus"] .editor-scroll {
-  background: #0d0d0d;
-  padding: 45vh 0 45vh !important;
-  scroll-behavior: smooth;
-}
-
-/* Content area — narrow, centered column */
-[data-editor-mode="focus"] .editor-content {
-  background: transparent !important;
-  max-width: 560px !important;
-  padding: 0 24px !important;
-  gap: 0 !important;
-  border-radius: 0 !important;
-}
-
-/* Strip ALL containers and chrome */
-[data-editor-mode="focus"] .block-controls,
-[data-editor-mode="focus"] .block-img-btn,
-[data-editor-mode="focus"] .scene-drag-handle,
-[data-editor-mode="focus"] .scene-collapse-btn,
-[data-editor-mode="focus"] .scene-num-badge,
-[data-editor-mode="focus"] .scene-spacer { display: none !important; }
-
-[data-editor-mode="focus"] .scene-group,
-[data-editor-mode="focus"] .element-row,
-[data-editor-mode="focus"] .scene-heading-row {
-  display: block !important;
-  padding: 0 !important;
-  margin: 0 0 8px !important;
-  gap: 0 !important;
-  background: none !important;
-}
-
-/* All text elements: bare, glowing white-on-black */
-[data-editor-mode="focus"] .scene-slugline,
-[data-editor-mode="focus"] .block-action,
-[data-editor-mode="focus"] .block-char-name,
-[data-editor-mode="focus"] .block-dialogue-text,
-[data-editor-mode="focus"] .block-paren,
-[data-editor-mode="focus"] .block-transition,
-[data-editor-mode="focus"] .block-dialogue-wrap,
-[data-editor-mode="focus"] .block-note {
-  all: unset !important;
-  display: block !important;
-  font-family: 'Courier New', Courier, monospace !important;
-  font-size: 13pt !important;
-  line-height: 1.8 !important;
-  color: rgba(230,230,230,.88) !important;
-  cursor: text !important;
-  outline: none !important;
-  background: transparent !important;
-}
-[data-editor-mode="focus"] .scene-slugline {
-  color: #fff !important;
-  font-weight: 700 !important;
-  text-transform: uppercase !important;
-  letter-spacing: .1em !important;
-  margin-bottom: 16px !important;
-}
-[data-editor-mode="focus"] .block-char-name {
-  color: rgba(200,200,200,.7) !important;
-  text-transform: uppercase !important;
-  margin-left: 120px !important;
-}
-[data-editor-mode="focus"] .block-dialogue-text {
-  margin-left: 60px !important;
-  margin-right: 60px !important;
-}
-[data-editor-mode="focus"] .block-paren {
-  margin-left: 84px !important;
-  color: rgba(200,200,200,.55) !important;
-}
-[data-editor-mode="focus"] .block-transition {
-  text-align: right !important;
-  text-transform: uppercase !important;
-  color: rgba(200,200,200,.5) !important;
-}
-
-/* Caret glow in focus mode */
-[data-editor-mode="focus"] *:focus {
-  caret-color: #fff !important;
-}
-
-/* Focus toolbar */
-#focusModeBar {
-  position: fixed;
-  top: 0; left: 50%; transform: translateX(-50%);
-  z-index: 9990;
-  display: none;
-  flex-direction: column; align-items: center;
-}
-[data-editor-mode="focus"] #focusModeBar { display: flex; }
-.fm-dots-btn {
-  width: 48px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255,255,255,.1);
-  background: none; border: none; cursor: pointer;
-  transition: color .35s;
-  border-radius: 0 0 8px 8px;
-}
-[data-editor-mode="focus"] .editor-scroll:hover ~ * #focusModeBar .fm-dots-btn,
-#focusModeBar:hover .fm-dots-btn,
-#focusModeBar.toolbar-open .fm-dots-btn { color: rgba(255,255,255,.6); }
-.fm-toolbar {
-  display: none;
-  background: rgba(14,14,14,.97);
-  border: 1px solid rgba(255,255,255,.09);
-  border-top: none;
-  border-radius: 0 0 16px 16px;
-  padding: 8px 12px 12px;
-  backdrop-filter: blur(24px);
-  flex-direction: column; gap: 6px;
-  min-width: 300px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.5);
-}
-#focusModeBar.toolbar-open .fm-toolbar { display: flex; }
-.fm-row { display:flex; align-items:center; gap:2px; flex-wrap:nowrap; justify-content:center; }
-.fm-row-sep { height:1px; background:rgba(255,255,255,.07); margin:2px 0; }
-/* Format row buttons (B I U, zoom, undo) */
-.fm-fmt-btn {
-  min-width:28px; height:28px; padding:0 8px;
-  border:none; background:transparent;
-  color:rgba(255,255,255,.75); cursor:pointer;
-  font-size:13px; font-family:var(--font);
-  border-radius:7px; transition:background .12s, color .12s;
-  display:flex; align-items:center; justify-content:center;
-}
-.fm-fmt-btn:hover { background:rgba(255,255,255,.12); color:#fff; }
-.fm-zoom-label { font-size:12px; color:rgba(255,255,255,.5); padding:0 4px; min-width:36px; text-align:center; }
-/* Block type buttons (icon + label) */
-.fm-tool-btn {
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:6px 8px; border:none; background:transparent;
-  color:rgba(255,255,255,.65); cursor:pointer;
-  border-radius:8px; transition:background .12s, color .12s;
-  min-width:44px;
-}
-.fm-tool-btn span { font-size:9px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; font-family:var(--font); white-space:nowrap; }
-.fm-tool-btn:hover { background:rgba(255,255,255,.1); color:#fff; }
-.fm-tool-btn.active { background:rgba(255,255,255,.1); color:#fff; }
-#focusModeBar.toolbar-open .fm-toolbar { display: flex; }
-.fm-btn {
-  padding: 5px 12px; border-radius: 8px; border: none;
-  background: rgba(255,255,255,.06);
-  color: rgba(255,255,255,.8);
-  font-size: 12px; font-weight: 600;
-  font-family: var(--font); cursor: pointer;
-  transition: background .12s, color .12s;
-  white-space: nowrap;
-}
-.fm-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
-.fm-btn.fmt { min-width: 32px; text-align: center; font-size: 14px; }
-.fm-sep { width: 1px; height: 20px; background: rgba(255,255,255,.12); margin: 0 2px; flex-shrink: 0; }
 [data-view="circular"] .sidebar { width: 72px; align-items: center; padding: 20px 8px; }
 [data-view="circular"] .sidebar-logo { padding: 8px 4px 14px; justify-content: center; }
 [data-view="circular"] .tab { width: 48px; height: 48px; border-radius: 50%; padding: 0; justify-content: center; }
@@ -2073,14 +1686,14 @@ html, body {
 
 /* Collapse toggle chevron inside scene heading */
 .scene-collapse-btn {
-  width: 28px; height: 28px; flex-shrink: 0;
+  width: 32px; height: 32px; flex-shrink: 0;
   border: none; background: transparent; cursor: pointer;
   color: var(--c1); display: flex; align-items: center; justify-content: center;
   border-radius: 7px; padding: 0;
   transition: background var(--transition), transform var(--transition);
 }
 .scene-collapse-btn:hover { background: var(--c1-soft); }
-.scene-collapse-btn svg { transition: transform .2s var(--ease); }
+.scene-collapse-btn svg { width: 22px; height: 22px; transition: transform .2s var(--ease); }
 .scene-group.collapsed .scene-collapse-btn svg { transform: rotate(-90deg); }
 
 /* ── Slugline ── */
@@ -3391,7 +3004,7 @@ html, body {
 
 /* ── SCRIPT COLUMN ── */
 .bd-script-wrap{flex:1;overflow-y:auto;overflow-x:hidden;padding:28px 20px 160px;}
-.bd-script-inner{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:0;}
+.bd-script-inner{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:0;row-gap:0;}
 
 /* ── PILLS ── */
 .pill-scene{
@@ -3401,9 +3014,9 @@ html, body {
   padding:10px 20px;border-radius:var(--r-input);
   background:linear-gradient(135deg,rgba(245,166,125,.12),rgba(155,127,212,.08));
   border:1px solid rgba(245,166,125,.25);color:var(--c1);
-  margin-bottom:20px;user-select:none;
+  margin-bottom:28px;user-select:none;
 }
-.pill-row{display:flex;justify-content:center;margin-bottom:10px;width:100%;}
+.pill-row{display:flex;justify-content:center;margin-bottom:18px;width:100%;}
 .pill-row.action{justify-content:flex-start;}
 .pill-row.char{justify-content:center;}
 .pill-row.dialogue{justify-content:center;}
@@ -4152,7 +3765,7 @@ mark.bd-mark.hovered{
 .ds-title-input{background:none;border:none;color:var(--text);font-family:var(--font-display);font-size:20px;font-weight:300;outline:none;padding:0;flex:1;min-width:120px;letter-spacing:-.3px}
 .ds-title-input::placeholder{color:var(--text4)}
 .ds-spacer{flex:1}
-.docs-list-view,.sheets-list-view{padding:32px 48px;overflow-y:auto;flex:1}
+.docs-list-view,.sheets-list-view{padding:32px 48px;overflow-y:auto;flex:1;min-height:0;display:block}
 .ds-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
 .ds-list-title{font-size:52px;font-weight:800;letter-spacing:-.04em;color:var(--text);font-family:var(--font)}
 .ds-list-title em{font-style:normal;font-weight:800;color:var(--text)}
@@ -4173,6 +3786,104 @@ mark.bd-mark.hovered{
 .ds-empty h3{font-size:20px;font-weight:300;margin-bottom:8px;color:var(--text2)}
 #panel-docs,#panel-sheets{flex-direction:column}
 .doc-editor-body{flex:1;overflow-y:auto;padding:48px 80px 80px;max-width:860px;margin:0 auto;width:100%;box-sizing:border-box}
+
+/* ── Docs page layout ── */
+.doc-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px; border-bottom: 1px solid var(--border);
+  background: var(--panel); flex-shrink: 0;
+}
+.doc-back-btn {
+  width: 32px; height: 32px; border: none; background: transparent;
+  color: var(--text3); cursor: pointer; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .12s;
+}
+.doc-back-btn:hover { background: var(--bg3); color: var(--text); }
+.doc-topbar-title {
+  flex: 1; font-size: 15px; font-weight: 600; color: var(--text);
+  outline: none; padding: 4px 8px; border-radius: 6px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0; transition: background .12s;
+}
+.doc-topbar-title:hover { background: var(--bg2); }
+.doc-topbar-title:focus { background: var(--bg2); white-space: normal; overflow: visible; }
+.doc-topbar-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+/* ── Toolbar strip (single row, Google Docs style) ── */
+.doc-toolbar-strip {
+  display: flex; align-items: center; gap: 2px;
+  padding: 4px 12px; border-bottom: 1px solid var(--border);
+  background: var(--panel); flex-shrink: 0; flex-wrap: nowrap;
+  overflow-x: auto; scrollbar-width: none;
+}
+.doc-toolbar-strip::-webkit-scrollbar { display: none; }
+.doc-tool-group { display: flex; align-items: center; gap: 1px; }
+.doc-toolbar-sep { width: 1px; height: 20px; background: var(--border); margin: 0 5px; flex-shrink: 0; }
+.doc-tbtn {
+  min-width: 28px; height: 28px; padding: 0 6px;
+  border: none; background: transparent; color: var(--text2);
+  cursor: pointer; border-radius: 5px; font-size: 13px;
+  font-family: var(--font); display: flex; align-items: center; justify-content: center;
+  transition: background .1s, color .1s; white-space: nowrap; flex-shrink: 0;
+}
+.doc-tbtn:hover { background: var(--bg3); color: var(--text); }
+.doc-style-select {
+  height: 28px; padding: 0 6px; border-radius: 6px;
+  border: 1.5px solid var(--border); background: var(--bg2);
+  color: var(--text2); font-size: 12px; font-family: var(--font);
+  cursor: pointer; outline: none; flex-shrink: 0; max-width: 130px;
+}
+.doc-color-btn {
+  position: relative; width: 28px; height: 28px; border-radius: 5px;
+  cursor: pointer; background: transparent; border: none;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 1px; flex-shrink: 0;
+  transition: background .1s; color: var(--text2);
+}
+.doc-color-btn:hover { background: var(--bg3); }
+.doc-color-bar { width: 16px; height: 3px; border-radius: 2px; flex-shrink: 0; }
+
+/* ── Page scroll area ── */
+.doc-page-scroll {
+  flex: 1; overflow-y: auto;
+  background: #e8e8e8;
+  padding: 40px 24px 80px;
+  display: flex; flex-direction: column; align-items: center;
+}
+[data-theme="dark"] .doc-page-scroll { background: #1a1a1a; }
+
+/* ── The white page itself ── */
+.doc-page {
+  width: 816px; max-width: 100%;
+  min-height: 1056px;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  border-radius: 1px;
+  padding: 96px 96px 120px;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  font-size: 11pt;
+  line-height: 1.6;
+  position: relative;
+}
+[data-theme="dark"] .doc-page {
+  background: #1e1e1e;
+  color: #e0e0e0;
+  box-shadow: 0 2px 20px rgba(0,0,0,.5);
+}
+
+/* Override doc text elements to use page colors */
+.doc-page .doc-h1 { color: #111; }
+.doc-page .doc-h2 { color: #111; }
+.doc-page .doc-h3 { color: #111; }
+.doc-page .doc-p  { color: #111; font-family: inherit; font-size: inherit; }
+.doc-page .doc-ce { font-family: inherit; }
+[data-theme="dark"] .doc-page .doc-h1,
+[data-theme="dark"] .doc-page .doc-h2,
+[data-theme="dark"] .doc-page .doc-h3,
+[data-theme="dark"] .doc-page .doc-p { color: #e0e0e0; }
 .doc-block{position:relative;margin-bottom:1px}
 .doc-block:hover .doc-block-handle{opacity:1}
 .doc-block-handle{position:absolute;left:-28px;top:50%;transform:translateY(-50%);width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:grab;opacity:0;transition:opacity .15s;color:var(--text4);font-size:10px}
@@ -4244,6 +3955,54 @@ mark.bd-mark.hovered{
 .sheet-cell-ref{width:60px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--bg2);color:var(--text3);font-family:monospace;font-size:11px;text-align:center}
 .sheet-formula-input{flex:1;border:none;outline:none;background:none;color:var(--text);font-family:monospace;font-size:13px;padding:2px 6px}
 .sheet-scroll-wrap{flex:1;overflow:auto;position:relative;user-select:none}
+
+/* ── Sheet tab bar ── */
+.sheet-tab-bar {
+  display: flex; align-items: stretch; height: 34px; flex-shrink: 0;
+  background: var(--bg2); border-top: 1.5px solid var(--border);
+  overflow: hidden;
+}
+.sheet-tabs-scroll {
+  flex: 1; overflow-x: auto; overflow-y: hidden;
+  display: flex; align-items: stretch; scrollbar-width: none;
+}
+.sheet-tabs-scroll::-webkit-scrollbar { display: none; }
+.sheet-tabs { display: flex; align-items: stretch; gap: 0; }
+.sheet-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 14px; font-size: 12px; font-weight: 600;
+  font-family: var(--font); color: var(--text3);
+  cursor: pointer; border-right: 1px solid var(--border);
+  background: transparent; border-top: none; border-bottom: none; border-left: none;
+  white-space: nowrap; position: relative; min-width: 80px; max-width: 160px;
+  transition: background .1s, color .1s; user-select: none;
+}
+.sheet-tab:hover { background: var(--bg3); color: var(--text2); }
+.sheet-tab.active {
+  background: var(--panel); color: var(--text);
+  border-top: 2px solid var(--c1); margin-top: -1px;
+}
+.sheet-tab-label {
+  flex: 1; overflow: hidden; text-overflow: ellipsis;
+}
+.sheet-tab-close {
+  opacity: 0; width: 14px; height: 14px; border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; line-height: 1; padding: 0;
+  color: var(--text3); background: none; border: none; cursor: pointer;
+  flex-shrink: 0; transition: opacity .12s, background .12s;
+}
+.sheet-tab:hover .sheet-tab-close,
+.sheet-tab.active .sheet-tab-close { opacity: 1; }
+.sheet-tab-close:hover { background: var(--bg3); color: var(--text); }
+.sheet-add-tab-btn {
+  width: 36px; border: none; background: transparent;
+  font-size: 18px; color: var(--text3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-left: 1px solid var(--border); flex-shrink: 0;
+  transition: background .1s, color .1s;
+}
+.sheet-add-tab-btn:hover { background: var(--bg3); color: var(--c1); }
 .sheet-table{border-collapse:collapse;table-layout:fixed;min-width:100%}
 
 /* Column headers */
@@ -4835,7 +4594,7 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
   <div class="app-body">
 
     <!-- HOME -->
-    <div class="panel active" id="panel-home">
+    <div class="panel active" id="panel-home" style="display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden">
       <div class="home-page">
         
         <!-- Sky Banner -->
@@ -5114,14 +4873,14 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
     </div>
 
     <!-- BREAKDOWNS -->
-    <div class="panel" id="panel-breakdowns">
+    <div class="panel panel-flex" id="panel-breakdowns">
       <div class="script-header">
         <div class="script-header-left">
           <h1 class="script-header-title">Breakdowns</h1>
           <span class="script-count" id="bdScriptCount"></span>
         </div>
       </div>
-      <div id="bdScriptListView"></div>
+      <div id="bdScriptListView" style="flex:1;display:flex;flex-direction:column;overflow-y:auto;"></div>
     </div>
 
     <!-- BREAKDOWN EDITOR (hidden until a script is selected) -->
@@ -5598,6 +5357,15 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
           </div>
           <div class="fmt-sep"></div>
           <div class="fmt-group">
+            <button class="fmt-undo-btn" onclick="frOpen(false)" title="Search (⌘F)">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+            <button class="fmt-undo-btn" onclick="openGoToPanel()" title="Go to Scene or Page">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 12h18M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div class="fmt-sep"></div>
+          <div class="fmt-group">
             <button class="fmt-undo-btn" id="btnUndo" onclick="editorUndo()" title="Undo (⌘Z)" disabled>
               <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 7v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
@@ -5966,44 +5734,6 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
         </div>
 
         <!-- EDITOR OPTIONS -->
-        <!-- EDITOR MODE -->
-        <div class="settings-section">
-          <div class="settings-title">Editor Mode</div>
-          <div class="settings-desc" style="margin-bottom:14px">Choose how the script and docs editors look and feel.</div>
-          <div class="editor-mode-cards" id="editorModeCards">
-
-            <div class="emode-card" data-mode="wrotenote" onclick="setEditorMode('wrotenote')">
-              <div class="emode-preview">
-                <div class="emode-prev-scene"></div>
-                <div class="emode-prev-action"></div>
-                <div class="emode-prev-dialogue"></div>
-              </div>
-              <div class="emode-label">WroteNote</div>
-              <div class="emode-sub">Colorful containers · visual blocks</div>
-            </div>
-
-            <div class="emode-card" data-mode="traditional" onclick="setEditorMode('traditional')">
-              <div class="emode-preview emode-prev-trad">
-                <div class="emode-trad-line bold"></div>
-                <div class="emode-trad-line"></div>
-                <div class="emode-trad-line short center"></div>
-                <div class="emode-trad-line medium indent"></div>
-              </div>
-              <div class="emode-label">Traditional</div>
-              <div class="emode-sub">Final Draft / Celtx style page</div>
-            </div>
-
-            <div class="emode-card" data-mode="focus" onclick="setEditorMode('focus')">
-              <div class="emode-preview emode-prev-focus">
-                <div class="emode-focus-cursor"></div>
-              </div>
-              <div class="emode-label">Focus</div>
-              <div class="emode-sub">Distraction-free · hover for toolbar</div>
-            </div>
-
-          </div>
-        </div>
-
         <div class="settings-section">
           <div class="settings-title">Editor</div>
 
@@ -6143,18 +5873,21 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
       <div class="ds-list" id="docs-card-grid"></div>
     </div>
     <div id="docs-editor-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-      <!-- Script-style top header -->
-      <div class="script-header" style="padding:10px 20px">
-        <div class="script-header-left">
-          <button class="editor-back" onclick="docsBackToList()"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Docs</button>
-        </div>
-        <div class="script-header-actions">
-          <button class="btn-secondary" style="font-size:12px;padding:5px 11px;gap:5px" onclick="openDocInfoPanel()" title="Document info">
+
+      <!-- Top bar: back + doc title + actions -->
+      <div class="doc-topbar">
+        <button class="doc-back-btn" onclick="docsBackToList()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="doc-topbar-title" id="doc-topbar-title" contenteditable="true" spellcheck="false" oninput="docsBannerTitleInput(this)">Untitled</div>
+        <div class="doc-topbar-actions">
+          <span id="docWordCount" style="font-size:11px;color:var(--text4);padding:0 6px;white-space:nowrap;"></span>
+          <button class="btn-secondary" style="font-size:12px;padding:5px 11px;gap:5px" onclick="openDocInfoPanel()" title="Info">
             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             Info
           </button>
-          <button class="btn-secondary" style="font-size:12px;padding:5px 11px;gap:5px" onclick="openDocExportModal()" title="Export document">
-            <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <button class="btn-secondary" style="font-size:12px;padding:5px 11px;gap:5px" onclick="openDocExportModal()" title="Export">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
             Export
           </button>
           <button class="btn-save" onclick="docsSave()" title="Save">
@@ -6163,55 +5896,69 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
           </button>
         </div>
       </div>
-      <!-- Banner -->
-      <div class="editor-banner" id="docBanner">
-        <div class="banner-icon-btn" id="docBannerIcon">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+
+      <!-- Formatting toolbar row 1: block types -->
+      <div class="doc-toolbar-strip">
+        <div class="doc-tool-group">
+          <select class="doc-style-select" onchange="docsApplyStyleSelect(this.value)">
+            <option value="p">Normal text</option>
+            <option value="h1">Heading 1</option>
+            <option value="h2">Heading 2</option>
+            <option value="h3">Heading 3</option>
+          </select>
         </div>
-        <div class="editor-banner-body">
-          <div class="editor-banner-title" id="doc-banner-title" contenteditable="true" spellcheck="false" oninput="docsBannerTitleInput(this)">Untitled</div>
+        <div class="doc-toolbar-sep"></div>
+        <div class="doc-tool-group">
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsFmt('bold')" title="Bold (⌘B)"><b>B</b></button>
+          <button class="doc-tbtn italic" onmousedown="event.preventDefault()" onclick="docsFmt('italic')" title="Italic (⌘I)"><i>I</i></button>
+          <button class="doc-tbtn" style="text-decoration:underline" onmousedown="event.preventDefault()" onclick="docsFmt('underline')" title="Underline (⌘U)">U</button>
+          <button class="doc-tbtn" style="text-decoration:line-through" onmousedown="event.preventDefault()" onclick="docsFmt('strikeThrough')" title="Strikethrough">S</button>
+        </div>
+        <div class="doc-toolbar-sep"></div>
+        <div class="doc-tool-group">
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsAlign('left')" title="Align left"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg></button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsAlign('center')" title="Align center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="17" y1="12" x2="7" y2="12"/><line x1="19" y1="18" x2="5" y2="18"/></svg></button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsAlign('right')" title="Align right"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/><line x1="21" y1="18" x2="7" y2="18"/></svg></button>
+        </div>
+        <div class="doc-toolbar-sep"></div>
+        <div class="doc-tool-group">
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('ul')" title="Bullet list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg></button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('ol')" title="Numbered list"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4" stroke-width="1.8"/><path d="M4 10h2" stroke-width="1.8"/><path d="M4 14h1.5a.5.5 0 0 1 0 1H4.5a.5.5 0 0 0 0 1H6" stroke-width="1.8"/></svg></button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('todo')" title="Checklist">☐</button>
+        </div>
+        <div class="doc-toolbar-sep"></div>
+        <div class="doc-tool-group">
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('quote')" title="Blockquote">"</button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('callout')" title="Callout">💡</button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertBlock('divider')" title="Divider">—</button>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsInsertLink()" title="Link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+        </div>
+        <div class="doc-toolbar-sep"></div>
+        <div class="doc-tool-group">
+          <select class="doc-style-select" style="width:44px" onmousedown="docsCaptureSel()" onchange="docsFontSize(this.value)" title="Font size">
+            <option>10</option><option>11</option><option selected>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>36</option>
+          </select>
+          <select class="doc-style-select" style="width:100px" onmousedown="docsCaptureSel()" onchange="docsFontFamily(this.value)" title="Font family">
+            <option value="inherit">Default</option><option value="Georgia,serif">Georgia</option><option value="'Times New Roman',serif">Times</option><option value="Arial,sans-serif">Arial</option><option value="'Courier New',monospace">Courier</option>
+          </select>
+          <label class="doc-color-btn" id="docColorBtn" title="Text color" onmousedown="docsCaptureSel()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 7h6l3 10H6L9 7z"/><line x1="12" y1="3" x2="12" y2="7"/></svg>
+            <div class="doc-color-bar" id="docColorBar" style="background:#F5A67D"></div>
+            <input type="color" id="docColorInput" value="#F5A67D" oninput="docsApplyColor(this.value)" style="position:absolute;opacity:0;width:100%;height:100%;cursor:pointer">
+          </label>
+          <button class="doc-tbtn" onmousedown="event.preventDefault()" onclick="docsFmt('removeFormat')" title="Clear formatting" style="font-size:9px;opacity:.7">✕ fmt</button>
         </div>
       </div>
-      <!-- Formatting toolbar (block types) -->
-      <div class="ds-toolbar" style="border-top:none">
-        <div class="ds-toolbar-group">
-          <button class="ds-btn" onclick="docsInsertBlock('h1')">H1</button>
-          <button class="ds-btn" onclick="docsInsertBlock('h2')">H2</button>
-          <button class="ds-btn" onclick="docsInsertBlock('h3')">H3</button>
-          <div class="ds-toolbar-sep"></div>
-          <button class="ds-btn" onclick="docsInsertBlock('p')">Para</button>
-          <button class="ds-btn" onclick="docsInsertBlock('ul')">• List</button>
-          <button class="ds-btn" onclick="docsInsertBlock('ol')"># List</button>
-          <button class="ds-btn" onclick="docsInsertBlock('todo')">☐ Todo</button>
-          <button class="ds-btn" onclick="docsInsertBlock('quote')">"</button>
-          <button class="ds-btn" onclick="docsInsertBlock('callout')">💡</button>
-          <button class="ds-btn" onclick="docsInsertBlock('divider')">—</button>
-        </div>
+
+      <!-- Page scroll area -->
+      <div class="doc-page-scroll" id="docPageScroll">
+        <div class="doc-page" id="doc-editor-body"></div>
       </div>
-      <div class="ds-toolbar-row2" id="docFmtToolbar">
-        <button class="ds-fmt-btn" id="docFmtBold" onmousedown="event.preventDefault()" onclick="docsFmt('bold')" title="Bold"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg></button>
-        <button class="ds-fmt-btn" id="docFmtItalic" onmousedown="event.preventDefault()" onclick="docsFmt('italic')" title="Italic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg></button>
-        <button class="ds-fmt-btn" id="docFmtUnderline" onmousedown="event.preventDefault()" onclick="docsFmt('underline')" title="Underline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg></button>
-        <button class="ds-fmt-btn" id="docFmtStrike" onmousedown="event.preventDefault()" onclick="docsFmt('strikeThrough')" title="Strikethrough"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="12" x2="20" y2="12"/></svg></button>
-        <button class="ds-fmt-btn" onmousedown="event.preventDefault()" onclick="docsAlign('left')" title="Align Left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg></button>
-        <button class="ds-fmt-btn" onmousedown="event.preventDefault()" onclick="docsAlign('center')" title="Align Center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="17" y1="12" x2="7" y2="12"/></svg></button>
-        <button class="ds-fmt-btn" onmousedown="event.preventDefault()" onclick="docsAlign('right')" title="Align Right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
-        <button class="ds-fmt-btn" onmousedown="event.preventDefault()" onclick="docsInsertLink()" title="Link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
-        <button class="ds-fmt-btn" onmousedown="event.preventDefault()" onclick="docsFmt('removeFormat')" title="Clear"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4l-4 16"/></svg></button>
-        <button class="doc-color-btn" id="docColorBtn" onmousedown="event.preventDefault()" onclick="docsToggleColorPicker(event)" title="Text color">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-          <div class="doc-color-bar" id="docColorBar" style="background:#F5A67D"></div>
-        </button>
-        <select class="ds-font-size" onmousedown="docsCaptureSel()" onchange="docsFontSize(this.value)" style="width:50px;margin-left:4px">
-          <option>10</option><option>11</option><option selected>12</option><option>14</option><option>16</option><option>18</option><option>20</option><option>24</option><option>28</option><option>32</option><option>36</option>
-        </select>
-        <select class="ds-font-family" onmousedown="docsCaptureSel()" onchange="docsFontFamily(this.value)">
-          <option value="inherit">Default</option><option value="Georgia,serif">Georgia</option><option value="'Times New Roman',serif">Times New Roman</option><option value="Arial,sans-serif">Arial</option><option value="'Courier New',monospace">Courier New</option>
-        </select>
-      </div>
-      <div class="doc-editor-body" id="doc-editor-body"></div>
+
     </div>
-  </div>
+
+  </div><!-- /panel-docs -->
+
   <div class="panel" id="panel-sheets">
     <div id="sheets-list-view" class="sheets-list-view">
       <div class="ds-list-header">
@@ -6219,7 +5966,7 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
         <button class="ds-new-btn" onclick="sheetsNewSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Sheet</button>
       </div>
       <div id="sheets-stats-bar" class="list-stats-bar"></div>
-      <div class="ds-list" id="sheets-card-grid"></div>
+      <div class="ds-list" id="sheets-card-grid"><div class="ds-empty"><h3>No sheets yet</h3><p>Create a spreadsheet to get started</p></div></div>
     </div>
     <div id="sheets-editor-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
       <!-- Script-style top header -->
@@ -6316,6 +6063,13 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
       </div>
       <div class="sheet-scroll-wrap" id="sheet-scroll-wrap"><table class="sheet-table" id="sheet-table"></table></div>
       <div id="sheetDragOverlay"></div>
+      <!-- Sheet tab bar -->
+      <div class="sheet-tab-bar" id="sheetTabBar">
+        <div class="sheet-tabs-scroll">
+          <div class="sheet-tabs" id="sheetTabs"></div>
+        </div>
+        <button class="sheet-add-tab-btn" onclick="sheetsAddTab()" title="Add sheet">+</button>
+      </div>
       <div class="ds-export-bar">
         <span class="ds-export-label">Export</span>
         <button class="ds-export-btn primary" onclick="sheetsExport('csv')">CSV</button>
@@ -6338,7 +6092,7 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
         <button class="kb-btn primary" onclick="kbNewBoard()">+ New Board</button>
       </div>
       <div class="kb-boards-grid-wrap">
-        <div class="kb-boards-grid" id="kb-boards-grid"></div>
+        <div class="kb-boards-grid" id="kb-boards-grid"><button class="kb-board-card-new" onclick="if(typeof kbNewBoard==='function')kbNewBoard()"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New Board</button></div>
       </div>
     </div>
 
@@ -7265,6 +7019,10 @@ function openScriptCtxMenu(e, i) {
   const menu = document.getElementById('scriptCtxMenu');
   if (!menu) return;
 
+  // Declare s first — used throughout this function
+  const scripts = loadScripts();
+  const s = scripts[i] || {};
+
   // Build genre picker
   const GENRES = ['Action','Comedy','Drama','Horror','Thriller','Sci-Fi','Fantasy','Romance','Mystery','Animation','Documentary','Short'];
   const genreRow = document.getElementById('ctxGenreRow');
@@ -7275,10 +7033,8 @@ function openScriptCtxMenu(e, i) {
   }
 
   // Build color swatches
-  const scripts = loadScripts();
-  const s = scripts[i] || {};
   const colorRow = document.getElementById('ctxColorRow');
-  colorRow.innerHTML = CARD_COLORS.map(c => {
+  if (colorRow) colorRow.innerHTML = CARD_COLORS.map(c => {
     const isCurrent = (s._cardColor || '') === c.val;
     return c.val
       ? `<div class="ctx-color-dot ${isCurrent ? 'selected' : ''}" style="background:${c.val}" title="${c.label}" onclick="setCardColor('${c.val}')"></div>`
@@ -7287,7 +7043,7 @@ function openScriptCtxMenu(e, i) {
 
   // Build icon options
   const iconRow = document.getElementById('ctxIconRow');
-  iconRow.innerHTML = CARD_ICONS.map(ic =>
+  if (iconRow) iconRow.innerHTML = CARD_ICONS.map(ic =>
     `<div class="ctx-icon-opt ${(s._cardIcon && s._cardIcon.includes(ic.id)) ? 'selected' : ''}" title="${ic.id}" onclick="setCardIcon('${ic.id}')">${ic.svg}</div>`
   ).join('') + `<div class="ctx-icon-opt" title="Reset" onclick="setCardIcon('')" style="font-size:10px;color:var(--text3)">✕</div>`;
 
@@ -11803,14 +11559,17 @@ async function runClaudeParser(rawText, title, source, ext) {
   const fallbackLocal = () => {
     // Preprocess Fountain markup before parsing/storing
     let processedText = rawText;
-    if (/\*\*|\[\[|^\.\s*(INT\.|EXT\.)|#\d+[A-Z]?#|^Title:/im.test(rawText)) {
+    const isFountain = /\*\*|\[\[|^\.\s*(INT\.|EXT\.)|#\d+[A-Z]?#|^Title:/im.test(rawText);
+    if (isFountain) {
       try { processedText = _preprocessFountain(rawText); } catch(e) {}
     }
     const elements = parseScreenplay(processedText);
     const sceneCount = elements.filter(e => e.type === 'scene-heading').length;
     const charSet = new Set(elements.filter(e => e.type === 'dialogue').map(e => e.character));
     const wc = processedText.split(/\s+/).filter(Boolean).length;
-    finish(processedText, sceneCount, charSet.size, wc);
+    // Store rawText as content so the editor can re-parse via _insertEditorImportText on open
+    // This ensures NAME: colon cues and bold-wrapped headers are handled correctly
+    finish(isFountain ? rawText : processedText, sceneCount, charSet.size, wc);
   };
 
   try {
@@ -12206,12 +11965,29 @@ function toggleThemeFromSidebar() {
 
 /* ── TABS ── */
 function switchTab(tab) {
+  // Highlight nav item
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
-  document.getElementById('panel-editor').classList.remove('active');
+
+  // Show/hide panels with explicit inline styles — do NOT rely on CSS alone
+  document.querySelectorAll('.panel').forEach(p => {
+    if (p.id === 'panel-' + tab) {
+      p.classList.add('active');
+      p.style.display = 'flex';
+      p.style.flex = '1';
+      p.style.flexDirection = 'column';
+      p.style.minHeight = '0';
+      p.style.overflow = 'hidden';
+    } else {
+      p.classList.remove('active');
+      p.style.display = 'none';
+    }
+  });
+
+  // panel-editor is not a .panel but needs hiding
+  const ed = document.getElementById('panel-editor');
+  if (ed) { ed.classList.remove('active'); ed.style.display = 'none'; }
 
   // Always return to list/select page for each tab
-  if (tab === 'home')       { renderHomeRecent(); }
   if (tab === 'script')     { renderScripts(); }
   if (tab === 'breakdowns') { renderBdScriptList(); }
   if (tab === 'docs')       {
@@ -12235,28 +12011,18 @@ function switchTab(tab) {
     initStoryPanel();
   }
   if (tab === 'kanban')     {
-    // Return to kanban boards list
-    const kbListView   = document.getElementById('kb-boards-view');
-    const kbEditorView = document.getElementById('kb-board-view');
-    const kbTemplView  = document.getElementById('kb-template-view');
-    if (kbListView)   { kbListView.style.display   = 'flex'; }
-    if (kbEditorView) { kbEditorView.style.display  = 'none'; }
-    if (kbTemplView)  { kbTemplView.style.display   = 'none'; }
-    if (typeof kbRenderBoards === 'function') kbRenderBoards();
+    var kbListView   = document.getElementById('kb-boards-view');
+    var kbEditorView = document.getElementById('kb-board-view');
+    var kbTemplView  = document.getElementById('kb-template-view');
+    if (kbListView)   kbListView.style.display   = 'flex';
+    if (kbEditorView) kbEditorView.style.display  = 'none';
+    if (kbTemplView)  kbTemplView.style.display   = 'none';
+    if (typeof kbRenderBoardsList === 'function') kbRenderBoardsList();
   }
+  if (tab === 'home') { renderHomeRecent(); if (typeof renderStreakCalendar === 'function') renderStreakCalendar(); }
   if (tab === 'settings')   {
     renderBgGrid('scriptBgGrid','panel-editor');
     renderBgGrid('bdBgGrid','panel-breakdown-editor');
-    // Sync editor mode cards to current mode
-    var curMode = document.documentElement.getAttribute('data-editor-mode') || 'wrotenote';
-    document.querySelectorAll('.emode-card').forEach(function(c) {
-      c.classList.toggle('active', c.dataset.mode === curMode);
-    });
-    // Sync nav position cards
-    var curNav = document.documentElement.getAttribute('data-nav') === 'top' ? 'top' : 'left';
-    document.querySelectorAll('.view-card[data-nav-v]').forEach(function(c) {
-      c.classList.toggle('selected', c.dataset.navV === curNav);
-    });
   }
   setTimeout(initEmptyCircles, 50);
 }
@@ -12887,6 +12653,15 @@ function _preprocessFountain(text) {
   return lines.slice(start).map(line => {
     // Scene numbers: #1#  #1A#
     line = line.replace(/\s*#[^#\n]+#\s*$/, '');
+
+    // Detect fully-bold lines BEFORE stripping — these are action/location headers
+    // e.g. **PARKING LOT** or **ANOTHER STREET.** — NOT character names
+    // Mark with \x01 sentinel so the parser treats them as action, not character names
+    if (/^\*\*[^*]+\*\*\.?\s*$/.test(line.trim())) {
+      line = '\x01' + line.replace(/\*\*/g, '').trim().replace(/\.$/, '').trim();
+      return line;
+    }
+
     // Bold: **text**
     line = line.replace(/\*\*(.+?)\*\*/g, '$1');
     // Italic: *text*
@@ -12972,7 +12747,12 @@ function _insertEditorImportText(rawText) {
   }
   function flushPendingChar() {
     if (pendingChar) {
-      blocks.push({ type: 'character', name: pendingChar.name, dialogue: '' });
+      // Join all accumulated dialogue lines into the character block
+      blocks.push({
+        type: 'character',
+        name: pendingChar.name,
+        dialogue: (pendingChar.lines || []).join('\n')
+      });
       knownChars.add(pendingChar.name);
       pendingChar = null;
     }
@@ -12990,6 +12770,14 @@ function _insertEditorImportText(rawText) {
       continue;
     }
 
+    /* \x01-prefixed lines: fully-bold action headers (e.g. PARKING LOT, SUBWAY) */
+    if (line.startsWith('\x01')) {
+      flushPendingChar();
+      flushAction();
+      actionBuffer.push(line.slice(1));
+      continue;
+    }
+
     /* Scene heading */
     if (/^(INT\.|EXT\.|INT\/EXT\.|I\/E\.|EST\.)/i.test(line)) {
       flushPendingChar();
@@ -13000,20 +12788,45 @@ function _insertEditorImportText(rawText) {
       continue;
     }
 
-    /* Transition lines (FADE OUT., CUT TO:, etc.) */
-    if (/^(FADE\s+(OUT|IN|TO)|CUT\s+TO|SMASH\s+CUT|MATCH\s+CUT|DISSOLVE\s+TO)[.:]\s*$/i.test(line)) {
+    /* Transition lines */
+    if (/^(FADE\s+(OUT|IN|TO)|CUT\s+TO|SMASH\s+CUT|MATCH[\s-]*CUT|DISSOLVE\s+TO|END\s+OF\s+\w+|BACK\s+TO|RETURN\s+TO|JUMP\s+CUT|HARD\s+CUT|WIPE\s+TO)/i.test(line)) {
       flushPendingChar();
       flushAction();
-      blocks.push({ type: 'action', text: line });
+      blocks.push({ type: 'action', text: line.replace(/:$/, '') });
       state = 'action';
       continue;
     }
 
-    /* Character name */
+    /* NAME: style character cues — lookahead for dialogue */
+    if (line.endsWith(':') && !line.endsWith('.:') && !line.endsWith('?:')) {
+      const nameNoColon = line.slice(0, -1).trim();
+      if (isCharName(nameNoColon)) {
+        let j = i + 1;
+        while (j < lines.length && !lines[j].trim()) j++;
+        const nextLine = j < lines.length ? lines[j].trim() : '';
+        const nextIsDialogue = nextLine && (
+          /[a-z]/.test(nextLine) ||            // mixed case = dialogue
+          nextLine.startsWith('(') ||           // parenthetical
+          /[!?]\s*$/.test(nextLine) ||          // exclamation / question
+          (nextLine.split(/\s+/).length <= 4 && // short all-caps line (≤4 words)
+           !/^(INT\.|EXT\.|INT\/EXT\.)/i.test(nextLine))
+        );
+        if (nextIsDialogue) {
+          flushPendingChar();
+          flushAction();
+          pendingChar = { name: nameNoColon.replace(/\s*\(.*?\)\s*/g, '').trim().toUpperCase(), lines: [] };
+          state = 'dialogue';
+          lastDialogue = '';
+          continue;
+        }
+      }
+    }
+
+    /* Character name (no colon) */
     if (isCharName(line)) {
       flushPendingChar();
       flushAction();
-      pendingChar = { name: line.replace(/\s*\(.*?\)\s*/g, '').trim().toUpperCase() };
+      pendingChar = { name: line.replace(/\s*\(.*?\)\s*/g, '').trim().toUpperCase(), lines: [] };
       state = 'dialogue';
       lastDialogue = '';
       continue;
@@ -13021,21 +12834,29 @@ function _insertEditorImportText(rawText) {
 
     /* Parenthetical */
     if (line.startsWith('(') && state === 'dialogue') {
-      flushPendingChar();
+      if (pendingChar) {
+        // Flush char first, then add paren
+        blocks.push({ type: 'character', name: pendingChar.name, dialogue: (pendingChar.lines||[]).join('\n') });
+        knownChars.add(pendingChar.name);
+        pendingChar = null;
+      }
       blocks.push({ type: 'paren', text: line });
       continue;
     }
 
-    /* In dialogue state */
+    /* In dialogue state — accumulate into pendingChar.lines */
     if (state === 'dialogue') {
       if (looksLikeAction(line, lastDialogue)) {
-        /* This line is prose action interrupting/following dialogue */
         flushPendingChar();
         state = 'action';
         actionBuffer.push(line);
       } else {
-        flushPendingChar();
-        blocks.push({ type: 'dialogue', text: line });
+        if (pendingChar) {
+          pendingChar.lines.push(line);
+        } else {
+          // continuation dialogue after paren — treat as standalone dialogue
+          blocks.push({ type: 'dialogue-orphan', text: line });
+        }
         lastDialogue = line;
       }
       continue;
@@ -13052,9 +12873,11 @@ function _insertEditorImportText(rawText) {
 
   /* ════ Build DOM from parsed blocks ════ */
   let ref = insertBefore;
+  let lastCharEl = null; // track last inserted character element for orphan dialogue
 
   blocks.forEach(b => {
     if (b.type === 'scene') {
+      lastCharEl = null;
       const spacer = document.createElement('div');
       spacer.className = 'scene-spacer';
       const w = document.createElement('div');
@@ -13062,11 +12885,29 @@ function _insertEditorImportText(rawText) {
       const group = w.firstElementChild;
       if (ref) { parent.insertBefore(spacer, ref); parent.insertBefore(group, ref); }
       else      { parent.appendChild(spacer);      parent.appendChild(group); }
+
     } else if (b.type === 'character') {
       const newEl = _buildCharDialogueBlock(b.name, b.dialogue || '');
       if (ref) parent.insertBefore(newEl, ref); else parent.appendChild(newEl);
+      lastCharEl = newEl;
+
+    } else if (b.type === 'dialogue-orphan') {
+      // Dialogue that came after a paren — append to last char element's dialogue
+      if (lastCharEl) {
+        const dlgEl = lastCharEl.querySelector('.block-dialogue-text');
+        if (dlgEl) {
+          dlgEl.textContent = (dlgEl.textContent.trim() ? dlgEl.textContent + '\n' : '') + b.text;
+          return;
+        }
+      }
+      // Fallback — treat as action
+      const el = document.createElement('div');
+      el.className = 'element-row';
+      el.innerHTML = `${blockControls()}<div class="block-action" contenteditable="true" spellcheck="false">${escHtml(b.text)}</div><div class="block-img-btn" title="Add icon or image" onclick="openIconPicker(this)">+</div>`;
+      if (ref) parent.insertBefore(el, ref); else parent.appendChild(el);
+
     } else if (b.type === 'paren') {
-      /* Append parenthetical to last dialogue block if possible */
+      /* Append parenthetical inside last dialogue block */
       const lastBlock = parent.lastElementChild;
       const dlg = lastBlock && lastBlock.querySelector('.block-dialogue-text');
       if (dlg) {
@@ -13082,8 +12923,10 @@ function _insertEditorImportText(rawText) {
         el.innerHTML = `${blockControls()}<div class="block-action" contenteditable="true" spellcheck="false">${escHtml(b.text)}</div><div class="block-img-btn" onclick="openIconPicker(this)">+</div>`;
         if (ref) parent.insertBefore(el, ref); else parent.appendChild(el);
       }
+
     } else {
       /* action */
+      lastCharEl = null;
       const el = document.createElement('div');
       el.className = 'element-row';
       el.innerHTML = `${blockControls()}<div class="block-action" contenteditable="true" spellcheck="false" data-placeholder="Action line…">${escHtml(b.text)}</div><div class="block-img-btn" title="Add icon or image" onclick="openIconPicker(this)">+</div>`;
@@ -15326,7 +15169,7 @@ function renderBdScriptList() {
   const scripts = loadScripts();
   if (countEl) countEl.textContent = scripts.length ? `${scripts.length} script${scripts.length !== 1 ? 's' : ''}` : '';
   if (!scripts.length) {
-    el.innerHTML = `<div class="blank-state">
+    el.innerHTML = `<div class="blank-state" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;">
       <div class="blank-icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" stroke="var(--text3)" stroke-width="1.5"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="var(--text3)" stroke-width="1.5"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="var(--text3)" stroke-width="1.5"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="var(--text3)" stroke-width="1.5"/></svg></div>
       <h2>No scripts yet</h2>
       <p>Add scripts in the Scripts tab to begin a breakdown.</p>
@@ -15874,7 +15717,7 @@ function docsOpenEditor(doc){
   if(ev){ ev.style.display = 'flex'; }
   var ti = document.getElementById('doc-title-input');
   if(ti) ti.value = doc.title || '';
-  var bt = document.getElementById('doc-banner-title');
+  var bt = document.getElementById('doc-topbar-title');
   if(bt) bt.textContent = doc.title || 'Untitled';
   docsRenderBlocks(doc.blocks || []);
   setTimeout(function(){
@@ -16238,69 +16081,255 @@ function sheetsRenderList(){
   }
   g.innerHTML = _sheetsAll.map(function(sh,i){
     var date = sh.updated ? new Date(sh.updated).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+    // Get dimensions from active tab (new format) or top-level (old format)
+    var activeTab = sh.tabs && sh.tabs.find(function(t){return t.id===sh.activeTabId;}) || (sh.tabs && sh.tabs[0]);
+    var rows = (activeTab ? activeTab.rows : sh.rows) || 20;
+    var cols = (activeTab ? activeTab.cols : sh.cols) || 8;
+    var tabCount = sh.tabs ? sh.tabs.length : 1;
     return '<div class="ds-card" onclick="sheetsOpenSheet('+i+')">'
       +'<div class="ds-card-icon">📊</div>'
       +'<div class="ds-card-name">'+(sh.title||'Untitled')+'</div>'
-      +'<div class="ds-card-meta">'+date+' · '+sh.rows+' × '+sh.cols+'</div>'
+      +'<div class="ds-card-meta">'+date+' · '+rows+' × '+cols+(tabCount>1?' · '+tabCount+' sheets':'')+'</div>'
       +'<div class="ds-card-actions"><button class="ds-card-action" onclick="event.stopPropagation();sheetsDeleteSheet('+i+')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button></div>'
       +'</div>';
   }).join('');
 }
 
+/* ── Sheet document helpers ── */
+var _sheetDoc = null;  // full document (with tabs array)
+
+function sheetsEnsureTabs(doc) {
+  // Migrate old format (no tabs) to new tab format
+  if (!doc.tabs) {
+    var tab = {
+      id: 'tab_' + Date.now(),
+      title: 'Sheet 1',
+      data: doc.data || [],
+      formats: doc.formats || {},
+      colHeaders: doc.colHeaders || {},
+      rowHeaderLabels: doc.rowHeaderLabels || {},
+      colWidths: doc.colWidths || {},
+      rowHeights: doc.rowHeights || {},
+      rows: doc.rows || 20,
+      cols: doc.cols || 8
+    };
+    doc.tabs = [tab];
+    doc.activeTabId = tab.id;
+    // Clean up old top-level keys
+    delete doc.data; delete doc.formats; delete doc.colHeaders;
+    delete doc.rowHeaderLabels; delete doc.colWidths; delete doc.rowHeights;
+    delete doc.rows; delete doc.cols;
+  }
+  if (!doc.activeTabId || !doc.tabs.find(function(t){return t.id===doc.activeTabId;})) {
+    doc.activeTabId = doc.tabs[0].id;
+  }
+  return doc;
+}
+
+function sheetsActiveTab() {
+  if (!_sheetDoc || !_sheetDoc.tabs) return null;
+  return _sheetDoc.tabs.find(function(t){return t.id===_sheetDoc.activeTabId;}) || _sheetDoc.tabs[0];
+}
+
+function sheetsFlushTabFromActive() {
+  // Write _sheetActive data back into the current tab in _sheetDoc
+  if (!_sheetDoc || !_sheetActive) return;
+  var tab = sheetsActiveTab();
+  if (!tab) return;
+  tab.data            = sheetsReadData ? sheetsReadData() : (_sheetActive.data||[]);
+  tab.formats         = _sheetActive.formats || {};
+  tab.colHeaders      = _sheetActive.colHeaders || {};
+  tab.rowHeaderLabels = _sheetActive.rowHeaderLabels || {};
+  tab.colWidths       = _sheetActive.colWidths || {};
+  tab.rowHeights      = _sheetActive.rowHeights || {};
+  tab.rows            = _sheetRows;
+  tab.cols            = _sheetCols;
+}
+
+function sheetsLoadTabIntoActive(tab) {
+  _sheetActive = {
+    id: tab.id,
+    title: tab.title,
+    data: JSON.parse(JSON.stringify(tab.data || [])),
+    formats: JSON.parse(JSON.stringify(tab.formats || {})),
+    colHeaders: JSON.parse(JSON.stringify(tab.colHeaders || {})),
+    rowHeaderLabels: JSON.parse(JSON.stringify(tab.rowHeaderLabels || {})),
+    colWidths: JSON.parse(JSON.stringify(tab.colWidths || {})),
+    rowHeights: JSON.parse(JSON.stringify(tab.rowHeights || {})),
+    rows: tab.rows || 20,
+    cols: tab.cols || 8
+  };
+}
+
+/* ── Tab bar rendering ── */
+function sheetsRenderTabBar() {
+  var bar = document.getElementById('sheetTabs');
+  if (!bar || !_sheetDoc || !_sheetDoc.tabs) return;
+  bar.innerHTML = _sheetDoc.tabs.map(function(tab) {
+    var active = tab.id === _sheetDoc.activeTabId;
+    return '<button class="sheet-tab' + (active ? ' active' : '') + '"'
+      + ' data-tab-id="' + tab.id + '"'
+      + ' onclick="sheetsSwitchTab(\'' + tab.id + '\')"'
+      + ' ondblclick="sheetsRenameTabDbl(this,\'' + tab.id + '\')"'
+      + ' oncontextmenu="sheetsTabCtxMenu(event,\'' + tab.id + '\');return false;">'
+      + '<span class="sheet-tab-label">' + escHtml(tab.title || 'Sheet') + '</span>'
+      + (_sheetDoc.tabs.length > 1
+          ? '<button class="sheet-tab-close" onclick="event.stopPropagation();sheetsDeleteTab(\'' + tab.id + '\')" title="Delete sheet">×</button>'
+          : '')
+      + '</button>';
+  }).join('');
+}
+
+/* ── Tab operations ── */
+window.sheetsSwitchTab = function(tabId) {
+  if (!_sheetDoc || _sheetDoc.activeTabId === tabId) return;
+  sheetsCommitEdit();
+  sheetsFlushTabFromActive();
+  _sheetDoc.activeTabId = tabId;
+  var tab = sheetsActiveTab();
+  if (!tab) return;
+  sheetsLoadTabIntoActive(tab);
+  _sheetsDirty = true;
+  _shSel = {r:0,c:0}; _shAnchor = {r:0,c:0}; _shFocus = {r:0,c:0};
+  sheetsRenderTable();
+  sheetsRenderTabBar();
+  setTimeout(function(){sheetsSelectCell(0,0,false,false);},40);
+};
+
+window.sheetsAddTab = function() {
+  if (!_sheetDoc) return;
+  sheetsCommitEdit();
+  sheetsFlushTabFromActive();
+  var num = _sheetDoc.tabs.length + 1;
+  var rows = 20, cols = 8, data = [];
+  for (var r = 0; r < rows; r++) { data[r] = []; for (var c = 0; c < cols; c++) data[r][c] = ''; }
+  var tab = { id: 'tab_' + Date.now(), title: 'Sheet ' + num, data: data, formats: {}, colHeaders: {}, rowHeaderLabels: {}, colWidths: {}, rowHeights: {}, rows: rows, cols: cols };
+  _sheetDoc.tabs.push(tab);
+  _sheetDoc.activeTabId = tab.id;
+  sheetsLoadTabIntoActive(tab);
+  _shSel = {r:0,c:0}; _shAnchor = {r:0,c:0}; _shFocus = {r:0,c:0};
+  _sheetsDirty = true;
+  sheetsRenderTable();
+  sheetsRenderTabBar();
+  // Scroll tab bar to end
+  var scroll = document.querySelector('.sheet-tabs-scroll');
+  if (scroll) setTimeout(function(){ scroll.scrollLeft = scroll.scrollWidth; }, 50);
+  setTimeout(function(){sheetsSelectCell(0,0,false,false);},40);
+};
+
+window.sheetsDeleteTab = function(tabId) {
+  if (!_sheetDoc || _sheetDoc.tabs.length <= 1) return;
+  if (!confirm('Delete this sheet? This cannot be undone.')) return;
+  var idx = _sheetDoc.tabs.findIndex(function(t){return t.id===tabId;});
+  if (idx < 0) return;
+  _sheetDoc.tabs.splice(idx, 1);
+  // Switch to adjacent tab
+  if (_sheetDoc.activeTabId === tabId) {
+    var newIdx = Math.min(idx, _sheetDoc.tabs.length - 1);
+    _sheetDoc.activeTabId = _sheetDoc.tabs[newIdx].id;
+    sheetsLoadTabIntoActive(_sheetDoc.tabs[newIdx]);
+    _shSel = {r:0,c:0}; _shAnchor = {r:0,c:0}; _shFocus = {r:0,c:0};
+    sheetsRenderTable();
+  }
+  _sheetsDirty = true;
+  sheetsRenderTabBar();
+};
+
+window.sheetsRenameTabDbl = function(btn, tabId) {
+  var tab = _sheetDoc && _sheetDoc.tabs.find(function(t){return t.id===tabId;});
+  if (!tab) return;
+  var labelEl = btn.querySelector('.sheet-tab-label');
+  if (!labelEl) return;
+  var inp = document.createElement('input');
+  inp.value = tab.title;
+  inp.style.cssText = 'width:90px;border:none;outline:none;background:transparent;font:inherit;text-align:center;padding:0;';
+  labelEl.replaceWith(inp);
+  inp.focus(); inp.select();
+  function commit() {
+    var val = inp.value.trim() || tab.title;
+    tab.title = val;
+    _sheetsDirty = true;
+    sheetsRenderTabBar();
+  }
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); commit(); }
+    if (e.key === 'Escape') { inp.value = tab.title; commit(); }
+  });
+};
+
+window.sheetsTabCtxMenu = function(e, tabId) {
+  e.preventDefault();
+  // Simple prompt-based rename for now
+  var tab = _sheetDoc && _sheetDoc.tabs.find(function(t){return t.id===tabId;});
+  if (!tab) return;
+  var name = prompt('Rename sheet:', tab.title);
+  if (name && name.trim()) { tab.title = name.trim(); _sheetsDirty = true; sheetsRenderTabBar(); }
+};
+
+/* ── Updated core functions ── */
 function sheetsNewSheet(){
   var rows=20,cols=8,data=[];
   for(var r=0;r<rows;r++){data[r]=[];for(var c=0;c<cols;c++)data[r][c]='';}
-  _sheetActive={id:'sh_'+Date.now(),title:'',rows:rows,cols:cols,data:data,colWidths:{},rowHeights:{},created:new Date().toISOString(),updated:new Date().toISOString()};
+  var tab = {id:'tab_'+Date.now(),title:'Sheet 1',data:data,formats:{},colHeaders:{},rowHeaderLabels:{},colWidths:{},rowHeights:{},rows:rows,cols:cols};
+  _sheetDoc = {id:'sh_'+Date.now(),title:'',activeTabId:tab.id,tabs:[tab],created:new Date().toISOString(),updated:new Date().toISOString()};
+  sheetsLoadTabIntoActive(tab);
   _sheetsDirty=false;
-  sheetsOpenEditor(_sheetActive);
+  sheetsOpenEditor(_sheetDoc);
 }
 
 function sheetsOpenSheet(i){
   _sheetsAll=sheetsLoad();
-  _sheetActive=JSON.parse(JSON.stringify(_sheetsAll[i]));
-  if(!_sheetActive.colWidths)_sheetActive.colWidths={};
-  if(!_sheetActive.rowHeights)_sheetActive.rowHeights={};
+  _sheetDoc=JSON.parse(JSON.stringify(_sheetsAll[i]));
+  _sheetDoc=sheetsEnsureTabs(_sheetDoc);
+  var tab=sheetsActiveTab();
+  sheetsLoadTabIntoActive(tab);
   _sheetsDirty=false;
-  sheetsOpenEditor(_sheetActive);
+  sheetsOpenEditor(_sheetDoc);
 }
 
-function sheetsOpenEditor(sh){
+function sheetsOpenEditor(doc){
+  _sheetDoc = sheetsEnsureTabs(doc || _sheetDoc);
+  var tab = sheetsActiveTab();
+  if (tab) sheetsLoadTabIntoActive(tab);
   var lv=document.getElementById('sheets-list-view');
   var ev=document.getElementById('sheets-editor-view');
   if(lv)lv.style.display='none';
   if(ev)ev.style.display='flex';
-  var ti=document.getElementById('sheet-title-input');if(ti)ti.value=sh.title||'';
-  var bt=document.getElementById('sheet-banner-title');if(bt)bt.textContent=sh.title||'Untitled';
-  _sheetRows=sh.rows||20;_sheetCols=sh.cols||8;
+  var ti=document.getElementById('sheet-title-input');
+  if(ti)ti.value=_sheetDoc.title||'';
+  var bt=document.getElementById('sheet-banner-title');
+  if(bt)bt.textContent=_sheetDoc.title||'Untitled';
+  _sheetRows=_sheetActive.rows||20;_sheetCols=_sheetActive.cols||8;
   _shEdit=null;_shCmdSet.clear();
-  // Reset cursor to A1 only when OPENING a sheet (not on re-renders during editing)
   _shSel={r:0,c:0};_shAnchor={r:0,c:0};_shFocus={r:0,c:0};
   sheetsRenderTable();
+  sheetsRenderTabBar();
   setTimeout(function(){sheetsSelectCell(0,0,false,false);},60);
 }
 
 function sheetsBackToList(){
   sheetsCommitEdit();
+  sheetsFlushTabFromActive();
   if(_sheetsDirty)sheetsSave();
   var lv=document.getElementById('sheets-list-view');
   var ev=document.getElementById('sheets-editor-view');
   if(lv)lv.style.display='block';
   if(ev)ev.style.display='none';
-  sheetsRenderList();_sheetActive=null;
+  sheetsRenderList();_sheetActive=null;_sheetDoc=null;
 }
 
 function sheetsDirty(){_sheetsDirty=true;}
 
 function sheetsSave(){
-  if(!_sheetActive)return;
+  if(!_sheetDoc)return;
   sheetsCommitEdit();
-  _sheetActive.title=(document.getElementById('sheet-title-input')||{value:''}).value.trim()||'Untitled';
-  _sheetActive.data=sheetsReadData();
-  _sheetActive.rows=_sheetRows;_sheetActive.cols=_sheetCols;
-  _sheetActive.updated=new Date().toISOString();
+  sheetsFlushTabFromActive();
+  _sheetDoc.title=(document.getElementById('sheet-title-input')||{value:''}).value.trim()||'Untitled';
+  _sheetDoc.updated=new Date().toISOString();
   _sheetsAll=sheetsLoad();
-  var idx=_sheetsAll.findIndex(function(s){return s.id===_sheetActive.id;});
-  if(idx>=0)_sheetsAll[idx]=_sheetActive;else _sheetsAll.unshift(_sheetActive);
+  var idx=_sheetsAll.findIndex(function(s){return s.id===_sheetDoc.id;});
+  if(idx>=0)_sheetsAll[idx]=_sheetDoc;else _sheetsAll.unshift(_sheetDoc);
   sheetsSaveAll(_sheetsAll);_sheetsDirty=false;
   if(typeof showToast==='function')showToast('Saved');
 }
@@ -17741,19 +17770,7 @@ function animateSection101(sec, root) {
 
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-  // Init when kanban tab is opened
   var _kbInited = false;
-  var _origSwitchTab = null;
-  document.addEventListener('DOMContentLoaded', function() {
-    // Hook into switchTab
-    setTimeout(function() {
-      var origSwitch = window.switchTab;
-      window.switchTab = function(tab) {
-        origSwitch && origSwitch(tab);
-        if (tab === 'kanban') { kbInit(); }
-      };
-    }, 200);
-  });
 
   function kbInit() {
     if (!_kbInited) { _kbInited = true; }
@@ -17766,6 +17783,10 @@ function animateSection101(sec, root) {
   }
 
   window._kbInit = kbInit;
+  // Expose board list render globally so switchTab can call it
+  window.kbRenderBoardsList = kbRenderBoardsList;
+  // Auto-render on load
+  kbRenderBoardsList();
 })();
 
 /* ══ DOCS COLOR PICKER ══ */
@@ -17868,6 +17889,12 @@ window.docsToggleHeading = function(headBlock) {
     ensureHiddenInput('sheet-title-input', 'Untitled');
   });
 })();
+
+window.docsApplyStyleSelect = function(val) {
+  if (!val) return;
+  const typeMap = { p: 'p', h1: 'h1', h2: 'h2', h3: 'h3' };
+  if (typeMap[val]) docsInsertBlock(val);
+};
 
 window.docsBannerTitleInput = function(el) {
   var ti = document.getElementById('doc-title-input');
@@ -19440,18 +19467,6 @@ function renderSideRow(row) {
     renderStreakCalendar();
   });
 
-  // Re-render when switching to Home tab
-  var _origSwitchTab = window.switchTab;
-  document.addEventListener('DOMContentLoaded', function() {
-    var origST = window.switchTab;
-    if (origST) {
-      window.switchTab = function(tab) {
-        origST(tab);
-        if (tab === 'home') renderStreakCalendar();
-      };
-    }
-  });
-
 })();
 </script>
 
@@ -19949,7 +19964,7 @@ function _docInfoSaveMeta(key, val) {
 window.docInfoSaveName = function(v) {
   if (typeof _docActive === 'undefined' || !_docActive) return;
   _docActive.title = v;
-  var banner = document.getElementById('doc-banner-title');
+  var banner = document.getElementById('doc-topbar-title');
   if (banner && banner.textContent !== v) banner.textContent = v;
   if (typeof docsDirty === 'function') docsDirty();
 };
@@ -21776,13 +21791,16 @@ if (typeof _origShSelect === 'function') {
 // Init format state on sheet open
 var _origSheetsOpenEditor = window.sheetsOpenEditor;
 if (typeof _origSheetsOpenEditor === 'function') {
-  window.sheetsOpenEditor = function(sh) {
-    if (!sh.formats) sh.formats = {};
-    if (!sh.colHeaders) sh.colHeaders = {};
-    if (!sh.rowHeaderLabels) sh.rowHeaderLabels = {};
+  window.sheetsOpenEditor = function(doc) {
+    // Ensure active tab has format fields
+    if (_sheetActive) {
+      if (!_sheetActive.formats)         _sheetActive.formats = {};
+      if (!_sheetActive.colHeaders)      _sheetActive.colHeaders = {};
+      if (!_sheetActive.rowHeaderLabels) _sheetActive.rowHeaderLabels = {};
+    }
     _shUndoStack = []; _shRedoStack = [];
     shUpdateUndoButtons();
-    _origSheetsOpenEditor(sh);
+    _origSheetsOpenEditor(doc);
     shSyncFmtBar();
   };
 }
@@ -21873,294 +21891,373 @@ window.shRenameRowHeader = function(r, spanEl) {
 
 </script>
 
-<!-- Focus Mode floating toolbar -->
-<div id="focusModeBar">
-  <button class="fm-dots-btn" onclick="toggleFocusToolbar()" title="Toolbar">
-    <svg width="16" height="4" fill="currentColor" viewBox="0 0 24 6"><circle cx="3" cy="3" r="2.5"/><circle cx="12" cy="3" r="2.5"/><circle cx="21" cy="3" r="2.5"/></svg>
-  </button>
-  <div class="fm-toolbar" id="fmToolbar">
-    <!-- Format row: B I U  –  zoom  –  undo/redo -->
-    <div class="fm-row fm-fmt-row">
-      <button class="fm-fmt-btn" onclick="fmtExec('bold')" title="Bold"><b>B</b></button>
-      <button class="fm-fmt-btn" onclick="fmtExec('italic')" title="Italic"><i>I</i></button>
-      <button class="fm-fmt-btn" style="text-decoration:underline" onclick="fmtExec('underline')" title="Underline">U</button>
-      <div class="fm-sep"></div>
-      <button class="fm-fmt-btn" onclick="adjustZoom(-10)">−</button>
-      <span class="fm-zoom-label" id="fmZoomLabel">100%</span>
-      <button class="fm-fmt-btn" onclick="adjustZoom(+10)">+</button>
-      <div class="fm-sep"></div>
-      <button class="fm-fmt-btn" onclick="editorUndo()" title="Undo">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M3 7v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-      <button class="fm-fmt-btn" onclick="editorRedo()" title="Redo">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 7v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
+<!-- ══ GO TO SCENE / PAGE PANEL ══ -->
+<style>
+#goToPanel {
+  position: fixed; inset: 0; z-index: 88000;
+  display: none; align-items: flex-start; justify-content: center;
+  padding-top: 80px;
+  background: rgba(0,0,0,.45);
+}
+#goToPanel.open { display: flex; }
+.goto-box {
+  background: var(--panel); border: 1px solid var(--border2);
+  border-radius: 16px; width: 500px; max-width: 94vw;
+  box-shadow: 0 16px 60px rgba(0,0,0,.35);
+  animation: wnThesIn .18s var(--ease) both;
+  overflow: hidden; display: flex; flex-direction: column;
+}
+.goto-search-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.goto-search-row svg { color: var(--text3); flex-shrink: 0; }
+.goto-input {
+  flex: 1; border: none; background: transparent; outline: none;
+  font-size: 15px; color: var(--text); font-family: var(--font);
+}
+.goto-input::placeholder { color: var(--text4); }
+.goto-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+  padding: 0 12px;
+}
+.goto-tab {
+  padding: 8px 14px; font-size: 12px; font-weight: 600;
+  color: var(--text3); cursor: pointer; border: none; background: none;
+  font-family: var(--font); border-bottom: 2px solid transparent;
+  transition: color .12s, border-color .12s; margin-bottom: -1px;
+}
+.goto-tab.active { color: var(--c1); border-color: var(--c1); }
+.goto-list {
+  max-height: 360px; overflow-y: auto;
+  padding: 6px 0; scrollbar-width: thin;
+}
+.goto-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; cursor: pointer;
+  transition: background .1s; border: none; background: none;
+  width: 100%; text-align: left; font-family: var(--font);
+}
+.goto-item:hover { background: var(--bg2); }
+.goto-item-num {
+  font-size: 11px; font-weight: 700; color: var(--text4);
+  min-width: 28px; font-variant-numeric: tabular-nums;
+}
+.goto-item-text { font-size: 13px; color: var(--text); flex: 1; }
+.goto-item-page { font-size: 11px; color: var(--text4); white-space: nowrap; }
+.goto-empty { padding: 24px 16px; text-align: center; color: var(--text4); font-size: 13px; }
+
+/* ── Multi-select floating action bar ── */
+.ms-selected { outline: 2px solid var(--c1) !important; outline-offset: 1px; }
+#msBar {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  z-index: 77000; display: none; align-items: center; gap: 8px;
+  background: var(--panel); border: 1.5px solid var(--border2);
+  border-radius: 99px; padding: 8px 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  backdrop-filter: blur(12px);
+  animation: wnThesIn .18s var(--ease) both;
+}
+#msBar.visible { display: flex; }
+.ms-count {
+  font-size: 12px; font-weight: 700; color: var(--text3);
+  padding-right: 8px; border-right: 1px solid var(--border);
+}
+.ms-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 99px; border: none;
+  font-size: 12px; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: background .12s, color .12s;
+}
+.ms-btn.delete { background: rgba(239,68,68,.12); color: #ef4444; }
+.ms-btn.delete:hover { background: rgba(239,68,68,.2); }
+.ms-btn.dupe { background: var(--bg2); color: var(--text2); }
+.ms-btn.dupe:hover { background: var(--bg3); color: var(--text); }
+.ms-btn.clear { background: transparent; color: var(--text4); }
+.ms-btn.clear:hover { color: var(--text); }
+</style>
+
+<!-- Go To Panel -->
+<div id="goToPanel">
+  <div class="goto-box">
+    <div class="goto-search-row">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M3 12h18M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <input class="goto-input" id="gotoInput" placeholder="Scene name or page number…" oninput="gotoFilter()" onkeydown="gotoKey(event)" autocomplete="off">
+      <button style="border:none;background:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 4px" onclick="closeGoTo()">×</button>
     </div>
-    <div class="fm-row-sep"></div>
-    <!-- Block type row -->
-    <div class="fm-row fm-blocks-row">
-      <button class="fm-tool-btn" onclick="insertElement('scene');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.8"/></svg>
-        <span>Scene</span>
-      </button>
-      <button class="fm-tool-btn active" onclick="insertElement('action');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <span>Action</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('character');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>Character</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('parenthetical');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M9 3C5 7 5 17 9 21M15 3c4 4 4 14 0 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>Parens</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('dialogue');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        <span>Dialogue</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('transition');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Transition</span>
-      </button>
-      <div class="fm-sep"></div>
-      <button class="fm-tool-btn" onclick="insertElement('shot');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><rect x="1" y="5" width="15" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/></svg>
-        <span>Shot</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('action');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>Text</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('note');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <span>Note</span>
-      </button>
-      <div class="fm-sep"></div>
-      <button class="fm-tool-btn" onclick="insertElement('new-act');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>New Act</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('end-act');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>End Act</span>
-      </button>
-      <button class="fm-tool-btn" onclick="insertElement('image');closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Image</span>
-      </button>
-      <div class="fm-sep"></div>
-      <button class="fm-tool-btn" onclick="toggleCollapseAllScenes(this);closeFocusToolbar()">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="8 5 12 9 16 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><polyline points="8 19 12 15 16 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <span>Collapse</span>
-      </button>
-      <div class="fm-sep"></div>
-      <button class="fm-tool-btn" onclick="setEditorMode('wrotenote')" style="opacity:.55">
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <span>Exit</span>
-      </button>
+    <div class="goto-tabs">
+      <button class="goto-tab active" id="gotoTabScenes" onclick="gotoSwitchTab('scenes',this)">Scenes</button>
+      <button class="goto-tab" id="gotoTabPages" onclick="gotoSwitchTab('pages',this)">Pages</button>
     </div>
+    <div class="goto-list" id="gotoList"></div>
   </div>
+</div>
+
+<!-- Multi-select action bar -->
+<div id="msBar">
+  <span class="ms-count" id="msCount">0 selected</span>
+  <button class="ms-btn dupe" onclick="msDuplicate()">
+    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Duplicate
+  </button>
+  <button class="ms-btn delete" onclick="msDelete()">
+    <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="1.8"/><path d="M19 6l-1 14H6L5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Delete
+  </button>
+  <button class="ms-btn clear" onclick="msClear()">✕</button>
 </div>
 
 <script>
 /* ════════════════════════════════════════════
-   EDITOR MODE  —  wrotenote | traditional | focus
+   GO TO SCENE / PAGE
    ════════════════════════════════════════════ */
-function setEditorMode(mode) {
-  document.documentElement.setAttribute('data-editor-mode', mode);
-  try { localStorage.setItem('wn_editor_mode', mode); } catch(e) {}
-  // Update settings cards
-  document.querySelectorAll('.emode-card').forEach(function(c) {
-    c.classList.toggle('active', c.dataset.mode === mode);
-  });
-  // Focus toolbar visibility handled by CSS via [data-editor-mode="focus"]
-  if (mode !== 'focus') closeFocusToolbar();
-}
+var _gotoTab = 'scenes';
 
-function toggleFocusToolbar() {
-  var bar = document.getElementById('focusModeBar');
-  if (bar) bar.classList.toggle('toolbar-open');
-}
-function closeFocusToolbar() {
-  var bar = document.getElementById('focusModeBar');
-  if (bar) bar.classList.remove('toolbar-open');
-}
+window.openGoToPanel = function() {
+  var panel = document.getElementById('goToPanel');
+  if (!panel) return;
+  document.getElementById('gotoInput').value = '';
+  gotoRender();
+  panel.classList.add('open');
+  setTimeout(function(){ document.getElementById('gotoInput').focus(); }, 60);
+};
+window.closeGoTo = function() {
+  var panel = document.getElementById('goToPanel');
+  if (panel) panel.classList.remove('open');
+};
 
-// Close focus toolbar when clicking outside
-document.addEventListener('mousedown', function(e) {
-  var bar = document.getElementById('focusModeBar');
-  if (bar && bar.classList.contains('toolbar-open') && !bar.contains(e.target)) {
-    closeFocusToolbar();
-  }
-});
+window.gotoSwitchTab = function(tab, btn) {
+  _gotoTab = tab;
+  document.querySelectorAll('.goto-tab').forEach(function(t){ t.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.getElementById('gotoInput').value = '';
+  gotoRender();
+  document.getElementById('gotoInput').focus();
+};
 
-// addEditorBlock — calls the existing toolbar button actions
-function addEditorBlock(type) {
-  var toolbarMap = {
-    'scene':      function(){ var b = document.querySelector('.tool-btn[onclick*="addScene"]'); if(b) b.click(); },
-    'action':     function(){ var b = document.querySelector('.tool-btn[onclick*="addAction"]'); if(b) b.click(); },
-    'character':  function(){ var b = document.querySelector('.tool-btn[onclick*="addChar"]'); if(b) b.click(); },
-    'paren':      function(){ var b = document.querySelector('.tool-btn[onclick*="addParen"]'); if(b) b.click(); },
-    'dialogue':   function(){ var b = document.querySelector('.tool-btn[onclick*="addDialogue"]'); if(b) b.click(); },
-    'transition': function(){ var b = document.querySelector('.tool-btn[onclick*="addTransition"]'); if(b) b.click(); },
-  };
-  if (toolbarMap[type]) toolbarMap[type]();
-}
+window.gotoFilter = function() { gotoRender(); };
 
-/* Typewriter scroll — keeps the active line at vertical center in focus mode */
-function focusTypewriterScroll() {
-  if (document.documentElement.getAttribute('data-editor-mode') !== 'focus') return;
-  var sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return;
-  var range = sel.getRangeAt(0).cloneRange();
-  range.collapse(true);
-  var rect = range.getBoundingClientRect();
-  if (!rect || !rect.top) return;
-  var scrollEl = document.querySelector('.editor-scroll');
-  if (!scrollEl) return;
-  var viewH = scrollEl.clientHeight;
-  var targetTop = rect.top + scrollEl.scrollTop - scrollEl.getBoundingClientRect().top - viewH / 2;
-  scrollEl.scrollTo({ top: targetTop, behavior: 'smooth' });
-  // Sync zoom label in focus toolbar
-  var mainLbl = document.getElementById('zoomLabel');
-  var fmLbl = document.getElementById('fmZoomLabel');
-  if (mainLbl && fmLbl) fmLbl.textContent = mainLbl.textContent;
-}
+window.gotoRender = function() {
+  var q = (document.getElementById('gotoInput').value || '').toLowerCase().trim();
+  var list = document.getElementById('gotoList');
+  if (!list) return;
 
-// Wire typewriter scroll to keydown in the editor
-document.addEventListener('keydown', function(e) {
-  if (document.documentElement.getAttribute('data-editor-mode') !== 'focus') return;
-  if (e.key.length === 1 || e.key === 'Enter' || e.key === 'Backspace' || e.key === 'Delete') {
-    setTimeout(focusTypewriterScroll, 30);
-  }
-});
-
-// Init on load
-document.addEventListener('DOMContentLoaded', function() {
-  var saved = localStorage.getItem('wn_editor_mode') || 'wrotenote';
-  setEditorMode(saved);
-});
-</script>
-
-<!-- ══ REMAINING BUG FIXES ══ -->
-<script>
-(function() {
-
-/* Fix A: OS dark mode auto-detect on first load */
-(function() {
-  var saved = localStorage.getItem('wn_theme');
-  if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    var tog = document.getElementById('themeToggle');
-    if (tog) tog.checked = true;
-  }
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-      if (!localStorage.getItem('wn_theme')) {
-        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        var tog = document.getElementById('themeToggle');
-        if (tog) tog.checked = e.matches;
+  if (_gotoTab === 'scenes') {
+    var scenes = [];
+    document.querySelectorAll('#editorContent .scene-slugline').forEach(function(sl, i) {
+      var text = sl.textContent.trim();
+      if (!q || text.toLowerCase().includes(q)) {
+        scenes.push({ num: i + 1, text: text, el: sl });
       }
     });
-  }
-})();
-
-/* Fix B: Docs live word count badge in formatting toolbar */
-(function() {
-  var toolbar = document.getElementById('docFmtToolbar');
-  if (toolbar && !document.getElementById('docWordCount')) {
-    var badge = document.createElement('span');
-    badge.id = 'docWordCount';
-    badge.style.cssText = 'margin-left:auto;font-size:11px;color:var(--text3);padding:0 6px;white-space:nowrap;pointer-events:none';
-    toolbar.appendChild(badge);
-  }
-  function updateDocWC() {
-    var b = document.getElementById('docWordCount'); if (!b) return;
-    var body = document.getElementById('doc-editor-body'); if (!body) { b.textContent=''; return; }
-    var t = (body.innerText||body.textContent||'').trim();
-    var w = t ? t.split(/\s+/).length : 0;
-    b.textContent = w.toLocaleString() + ' words';
-  }
-  document.addEventListener('input', function(e) {
-    if (e.target && e.target.closest && e.target.closest('#doc-editor-body')) updateDocWC();
-  });
-  var origDOE = window.docsOpenEditor;
-  if (typeof origDOE === 'function') {
-    window.docsOpenEditor = function(doc) { origDOE(doc); setTimeout(updateDocWC, 80); };
-  }
-})();
-
-/* Fix C: Stubs for renderCharList / renderLocList to prevent silent failures */
-if (typeof window.renderCharList !== 'function') {
-  window.renderCharList = function() {
-    var el = document.getElementById('bdCharListEl');
-    if (!el) return;
-    var chars = (typeof state !== 'undefined' && state && state.characters) ? state.characters : [];
-    el.innerHTML = chars.length
-      ? chars.map(function(c){ return '<div class="bd-list-row">' + escHtml(c.name||c) + '</div>'; }).join('')
-      : '<div class="bd-list-empty">Load a script to see characters.</div>';
-  };
-}
-if (typeof window.renderLocList !== 'function') {
-  window.renderLocList = function() {
-    var el = document.getElementById('bdLocList');
-    if (!el) return;
-    var locs = (typeof state !== 'undefined' && state && state.locations) ? state.locations : [];
-    el.innerHTML = locs.length
-      ? locs.map(function(l){ return '<div class="bd-list-row">' + escHtml(l.name||l) + '</div>'; }).join('')
-      : '<div class="bd-list-empty">Load a script to see locations.</div>';
-  };
-}
-
-/* Fix D: Strip <mark> tags from snapshots before save (belt-and-suspenders) */
-var _origSnap = window.snapshotEditor;
-if (typeof _origSnap === 'function') {
-  window.snapshotEditor = function() {
-    var blocks = _origSnap();
-    if (!Array.isArray(blocks)) return blocks;
-    return blocks.map(function(b) {
-      return typeof b === 'string' ? b.replace(/<mark[^>]*>([\s\S]*?)<\/mark>/gi,'$1') : b;
-    });
-  };
-}
-
-/* Fix E: Editor scroll position preserved across tab switches */
-(function() {
-  var _edScrollTop = 0;
-  var _origSwitch = window.switchTab;
-  if (typeof _origSwitch === 'function') {
-    window.switchTab = function(tab) {
-      var wasEditor = document.documentElement.dataset.activeTab === 'script';
-      if (wasEditor) {
-        var sc = document.querySelector('#panel-editor .editor-scroll');
-        if (sc) _edScrollTop = sc.scrollTop;
-      }
-      _origSwitch(tab);
-      if (tab === 'script') {
-        setTimeout(function() {
-          var sc = document.querySelector('#panel-editor .editor-scroll');
-          if (sc && _edScrollTop) sc.scrollTop = _edScrollTop;
-        }, 40);
-      }
-    };
-  }
-})();
-
-/* Fix F: Sheets sheetsHighlight guard — ensure alias exists after all scripts load */
-if (typeof window.sheetsHighlight !== 'function') {
-  window.sheetsHighlight = function() {
-    if (typeof sheetsSelectCell === 'function' && window._shSel) {
-      sheetsSelectCell(window._shSel.r, window._shSel.c, false, false);
+    if (!scenes.length) {
+      list.innerHTML = '<div class="goto-empty">No scenes found</div>';
+      return;
     }
-  };
-}
+    list.innerHTML = scenes.map(function(s, i) {
+      return '<button class="goto-item" data-idx="' + i + '" onclick="gotoScene(' + i + ')">'
+        + '<span class="goto-item-num">' + s.num + '</span>'
+        + '<span class="goto-item-text">' + escHtml(s.text) + '</span>'
+        + '</button>';
+    }).join('');
+    // Store scene references
+    list._scenes = scenes;
 
-})();
+  } else {
+    // Pages — list page markers
+    var pages = [];
+    document.querySelectorAll('.script-page-wrap').forEach(function(pw, i) {
+      var pgNum = i + 1;
+      var label = 'Page ' + pgNum;
+      if (!q || String(pgNum).includes(q)) {
+        pages.push({ num: pgNum, el: pw });
+      }
+    });
+    // If no page markers (page breaks not generated yet), offer page-estimate nav
+    if (!pages.length) {
+      var content = document.getElementById('editorContent');
+      var estPages = content ? Math.max(1, Math.round(content.innerText.split(/\s+/).length / 180)) : 1;
+      for (var p = 1; p <= estPages; p++) {
+        if (!q || String(p).includes(q)) pages.push({ num: p, el: null });
+      }
+    }
+    if (!pages.length) {
+      list.innerHTML = '<div class="goto-empty">No pages found</div>';
+      return;
+    }
+    list.innerHTML = pages.map(function(pg, i) {
+      return '<button class="goto-item" onclick="gotoPage(' + pg.num + ')">'
+        + '<span class="goto-item-num">' + pg.num + '</span>'
+        + '<span class="goto-item-text">Page ' + pg.num + '</span>'
+        + '</button>';
+    }).join('');
+    list._pages = pages;
+  }
+};
+
+window.gotoScene = function(idx) {
+  var list = document.getElementById('gotoList');
+  if (!list || !list._scenes) return;
+  var sc = list._scenes[idx];
+  if (!sc || !sc.el) return;
+  closeGoTo();
+  sc.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Briefly highlight
+  sc.el.style.transition = 'background .1s';
+  sc.el.style.background = 'var(--c1-soft)';
+  setTimeout(function(){ sc.el.style.background = ''; }, 1000);
+};
+
+window.gotoPage = function(pageNum) {
+  closeGoTo();
+  var markers = document.querySelectorAll('.script-page-wrap');
+  if (markers.length >= pageNum) {
+    markers[pageNum - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  // Estimate scroll position based on word count
+  var scroll = document.getElementById('editorScroll');
+  if (!scroll) return;
+  var content = document.getElementById('editorContent');
+  var totalH = content ? content.scrollHeight : scroll.scrollHeight;
+  var words = content ? content.innerText.split(/\s+/).length : 1;
+  var wordsPerPage = 180;
+  var ratio = ((pageNum - 1) * wordsPerPage) / Math.max(words, 1);
+  scroll.scrollTo({ top: Math.round(totalH * ratio), behavior: 'smooth' });
+};
+
+window.gotoKey = function(e) {
+  if (e.key === 'Escape') { closeGoTo(); return; }
+  if (e.key === 'Enter') {
+    var first = document.querySelector('#gotoList .goto-item');
+    if (first) first.click();
+    return;
+  }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    var items = document.querySelectorAll('#gotoList .goto-item');
+    if (!items.length) return;
+    var focused = document.activeElement;
+    var idx = Array.from(items).indexOf(focused);
+    if (idx < 0) { items[0].focus(); return; }
+    var next = e.key === 'ArrowDown' ? Math.min(idx + 1, items.length - 1) : Math.max(idx - 1, 0);
+    items[next].focus();
+  }
+};
+
+// Close on backdrop click
+document.getElementById('goToPanel').addEventListener('mousedown', function(e) {
+  if (e.target === this) closeGoTo();
+});
+// Keyboard shortcut Cmd+G
+document.addEventListener('keydown', function(e) {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'g' || e.key === 'G')) {
+    var edPanel = document.getElementById('panel-editor');
+    if (edPanel && edPanel.classList.contains('active')) {
+      e.preventDefault();
+      openGoToPanel();
+    }
+  }
+});
+
+/* ════════════════════════════════════════════
+   MULTI-SELECT CONTAINERS
+   ════════════════════════════════════════════ */
+var _msSelected = new Set(); // Set of element references
+
+window.msToggleSelect = function(el) {
+  if (!el) return;
+  if (_msSelected.has(el)) {
+    _msSelected.delete(el);
+    el.classList.remove('ms-selected');
+  } else {
+    _msSelected.add(el);
+    el.classList.add('ms-selected');
+  }
+  msUpdateBar();
+};
+
+window.msClear = function() {
+  _msSelected.forEach(function(el) { el.classList.remove('ms-selected'); });
+  _msSelected.clear();
+  msUpdateBar();
+};
+
+window.msUpdateBar = function() {
+  var bar = document.getElementById('msBar');
+  var count = document.getElementById('msCount');
+  if (!bar) return;
+  if (_msSelected.size > 0) {
+    bar.classList.add('visible');
+    if (count) count.textContent = _msSelected.size + ' selected';
+  } else {
+    bar.classList.remove('visible');
+  }
+};
+
+window.msDelete = function() {
+  if (!_msSelected.size) return;
+  if (!confirm('Delete ' + _msSelected.size + ' block' + (_msSelected.size !== 1 ? 's' : '') + '?')) return;
+  undoPushSnapshot();
+  _msSelected.forEach(function(el) {
+    // If it's a scene group, remove spacer too
+    var prev = el.previousElementSibling;
+    if (prev && prev.classList.contains('scene-spacer')) prev.remove();
+    el.remove();
+  });
+  _msSelected.clear();
+  msUpdateBar();
+  renumberScenes();
+  saveCurrentEditor();
+};
+
+window.msDuplicate = function() {
+  if (!_msSelected.size) return;
+  undoPushSnapshot();
+  // Clone each in order, insert after the last selected element
+  var sorted = Array.from(_msSelected).sort(function(a, b) {
+    return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+  });
+  var lastEl = sorted[sorted.length - 1];
+  var insertAfter = lastEl.nextElementSibling;
+  sorted.forEach(function(el) {
+    var clone = el.cloneNode(true);
+    clone.classList.remove('ms-selected');
+    // Reattach event handlers that were cloned without listeners (not needed - onclick inline)
+    if (insertAfter) el.parentNode.insertBefore(clone, insertAfter);
+    else el.parentNode.appendChild(clone);
+  });
+  msClear();
+  renumberScenes();
+  saveCurrentEditor();
+};
+
+// Intercept click on editor blocks for multi-select (Cmd/Ctrl+click)
+document.addEventListener('click', function(e) {
+  if (!(e.metaKey || e.ctrlKey)) return;
+  // Find the nearest selectable container
+  var target = e.target.closest('.element-row, .scene-group');
+  if (!target) return;
+  var edContent = document.getElementById('editorContent');
+  if (!edContent || !edContent.contains(target)) return;
+  e.preventDefault();
+  e.stopPropagation();
+  msToggleSelect(target);
+}, true);
+
+// Press Escape to clear selection
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && _msSelected.size > 0) {
+    msClear();
+  }
+});
+
+/* ── Init sheets and kanban lists on load ── */
+document.addEventListener('DOMContentLoaded', function() {
+  try { if (typeof sheetsRenderList === 'function') sheetsRenderList(); } catch(e) {}
+  try { if (typeof kbRenderBoardsList === 'function') kbRenderBoardsList(); } catch(e) {}
+});
+
 </script>
-<style>
-#docWordCount { user-select: none; font-variant-numeric: tabular-nums; }
-.bd-list-row { padding: 7px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); }
-.bd-list-empty { padding: 20px; text-align: center; color: var(--text3); font-size: 13px; }
-</style>
+
 </body></html>
