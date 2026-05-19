@@ -4391,6 +4391,13 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
   color: var(--text4); display: flex; align-items: center; justify-content: center;
   border-radius: 4px; opacity: 0; transition: opacity .15s, color .12s;
 }
+/* Scale toggle to match heading size */
+.doc-h-wrap:has(.doc-h1) .doc-h-toggle { width: 36px; height: 36px; margin-top: 6px; border-radius: 8px; }
+.doc-h-wrap:has(.doc-h1) .doc-h-toggle svg { width: 24px; height: 24px; }
+.doc-h-wrap:has(.doc-h2) .doc-h-toggle { width: 26px; height: 26px; margin-top: 5px; border-radius: 6px; }
+.doc-h-wrap:has(.doc-h2) .doc-h-toggle svg { width: 18px; height: 18px; }
+.doc-h-wrap:has(.doc-h3) .doc-h-toggle { width: 20px; height: 20px; margin-top: 2px; border-radius: 5px; }
+.doc-h-wrap:has(.doc-h3) .doc-h-toggle svg { width: 14px; height: 14px; }
 .doc-block:hover .doc-h-toggle { opacity: 1; }
 .doc-h-toggle:hover { color: var(--text2); background: var(--hover); }
 .doc-h-toggle svg { transition: transform .2s; }
