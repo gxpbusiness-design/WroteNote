@@ -10192,9 +10192,9 @@ function generatePdf() {
   pdfFrame.contentDocument.close();
   // Wait for fonts to load then trigger print (save as PDF)
   setTimeout(() => {
+    // Clean up only after the print dialog is fully closed
+    pdfFrame.contentWindow.addEventListener('afterprint', () => pdfFrame.remove());
     pdfFrame.contentWindow.print();
-    // Clean up after print dialog closes
-    setTimeout(() => pdfFrame.remove(), 2000);
   }, 600);
 }
 
