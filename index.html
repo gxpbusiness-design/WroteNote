@@ -1583,7 +1583,7 @@ html, body {
   flex-shrink: 0; padding: 6px 16px 8px;
   background: transparent; border-bottom: none;
   display: flex; flex-direction: column; gap: 6px;
-  align-items: center;
+  align-items: center; width: 100%; box-sizing: border-box; overflow: hidden;
 }
 /* Formatting bar */
 .editor-format-bar {
@@ -1633,13 +1633,14 @@ html, body {
 .fmt-sep { width: 1px; height: 18px; background: var(--border2); margin: 0 5px; flex-shrink: 0; }
 
 .editor-toolbar {
-  display: flex; align-items: center; justify-content: center; gap: 1px;
+  display: flex; align-items: center; justify-content: flex-start; gap: 1px;
   background: var(--bg2); border: 1px solid var(--border2);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border-radius: var(--r-pill); padding: 4px 10px;
-  overflow-x: auto;
+  overflow-x: auto; max-width: 100%; box-sizing: border-box;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
-.editor-toolbar::-webkit-scrollbar { height: 0; }
+.editor-toolbar::-webkit-scrollbar { display: none; }
 .tool-btn {
   display: flex; flex-direction: column; align-items: center;
   gap: 2px; padding: 5px 8px; border: none; background: transparent;
@@ -1655,12 +1656,14 @@ html, body {
 
 /* ── Editor scroll ── */
 .editor-scroll {
-  flex: 1; overflow-y: auto; padding: 28px 20px 100px;
+  flex: 1; overflow-y: auto; padding: 28px 28px 100px;
   display: flex; flex-direction: column; align-items: center;
+  box-sizing: border-box;
 }
 .editor-content {
   width: 100%; max-width: 720px; padding: var(--d-editor-pad);
   display: flex; flex-direction: column; gap: var(--d-gap);
+  box-sizing: border-box; min-width: 0;
 }
 
 /* Empty state hint */
@@ -1677,7 +1680,7 @@ html, body {
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Scene group ── */
-.scene-group { display: flex; flex-direction: column; gap: var(--d-gap); }
+.scene-group { display: flex; flex-direction: column; gap: var(--d-gap); margin-bottom: var(--d-gap); }
 
 /* Collapsed scene — hide all children except the heading row */
 .scene-group.collapsed > :not(.scene-heading-row) {
@@ -1797,21 +1800,24 @@ html, body {
 
 /* ── IMAGE button (right of action/dialogue) ── */
 .block-img-btn {
-  width: 54px; flex-shrink: 0;
+  /* collapsed by default — takes zero layout space so blocks fill full row width */
+  flex: 0 0 0; max-width: 0; width: 54px; overflow: hidden;
   background: var(--c1-soft);
-  border: 2px dashed rgba(245,166,125,.4);
+  border: 2px dashed rgba(91,141,239,.4);
   border-radius: var(--r-card);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: var(--c1); transition: all var(--transition) .35s; /* delay before hiding */
+  color: var(--c1); transition: max-width .2s ease, flex-basis .2s ease, opacity .15s ease .35s;
   align-self: stretch; min-height: 52px; position: relative;
   font-size: 22px; font-weight: 200; user-select: none;
   opacity: 0; pointer-events: none;
 }
 .element-row:hover .block-img-btn {
+  flex: 0 0 54px; max-width: 54px;
   opacity: 1; pointer-events: all;
-  transition: all var(--transition); /* show immediately */
+  transition: max-width .2s ease, flex-basis .2s ease, opacity .1s ease;
 }
 .block-img-btn.has-content {
+  flex: 0 0 54px; max-width: 54px;
   opacity: 1; pointer-events: all;
 }
 .block-img-btn:hover {
@@ -11788,6 +11794,36 @@ function togglePageSplitters(el) {
   }
   updatePageMarkers();
   localStorage.setItem('wn_page_splitters', on ? '1' : '');
+  syncOverflowPageBtn();
+}
+
+function togglePageView() {
+  const on = !document.documentElement.hasAttribute('data-page-splitters');
+  const numEl = document.getElementById('pageNumbersToggle');
+  const splEl = document.getElementById('pageSplittersToggle');
+  if (on) {
+    document.documentElement.setAttribute('data-page-splitters', '');
+    document.documentElement.setAttribute('data-page-numbers', '');
+    if (numEl) numEl.checked = true;
+    if (splEl) splEl.checked = true;
+    localStorage.setItem('wn_page_splitters', '1');
+    localStorage.setItem('wn_page_numbers', '1');
+  } else {
+    document.documentElement.removeAttribute('data-page-splitters');
+    document.documentElement.removeAttribute('data-page-numbers');
+    if (numEl) numEl.checked = false;
+    if (splEl) splEl.checked = false;
+    localStorage.setItem('wn_page_splitters', '');
+    localStorage.setItem('wn_page_numbers', '');
+  }
+  if (typeof updatePageMarkers === 'function') updatePageMarkers();
+  syncOverflowPageBtn();
+}
+
+function syncOverflowPageBtn() {
+  const on = document.documentElement.hasAttribute('data-page-splitters');
+  const btn = document.getElementById('overflowPageBtn');
+  if (btn) btn.classList.toggle('active-toggle', on);
 }
 
 function settingsSaveName() {
@@ -20082,6 +20118,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="1.8"/></svg>
     Split View
   </button>
+  <div class="editor-overflow-sep"></div>
+  <button class="editor-overflow-item" id="overflowPageBtn" onclick="togglePageView();closeEditorOverflow()">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><line x1="8" y1="7" x2="16" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="11" x2="16" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="8" y1="15" x2="13" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    Page View
+  </button>
 </div>
 
 <!-- ══ EDITOR TOPBAR OVERFLOW — V10 ══ -->
@@ -20116,6 +20157,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var ovSplit = document.getElementById('overflowSplitBtn');
     if (ovFocus) ovFocus.classList.toggle('active-toggle', !!focusActive);
     if (ovSplit) ovSplit.classList.toggle('active-toggle', !!splitActive);
+    var ovPage = document.getElementById('overflowPageBtn');
+    if (ovPage) ovPage.classList.toggle('active-toggle', document.documentElement.hasAttribute('data-page-splitters'));
   }
 
   window.toggleEditorOverflow = function (e) {
