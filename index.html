@@ -126,7 +126,7 @@ textarea, [contenteditable="true"] { cursor: text; }
   --d-block-pad-v: 14px;
   --d-block-pad-h: 18px;
   --d-gap: 20px;
-  --d-editor-pad: 0 24px 0 52px;
+  --d-editor-pad: 0 52px 0 52px;
 }
 
 /* Compact density */
@@ -134,14 +134,14 @@ textarea, [contenteditable="true"] { cursor: text; }
   --d-block-pad-v: 7px;
   --d-block-pad-h: 12px;
   --d-gap: 8px;
-  --d-editor-pad: 0 16px 0 44px;
+  --d-editor-pad: 0 44px 0 44px;
 }
 /* Extended density */
 [data-density="extended"] {
   --d-block-pad-v: 22px;
   --d-block-pad-h: 26px;
   --d-gap: 32px;
-  --d-editor-pad: 0 32px 0 64px;
+  --d-editor-pad: 0 64px 0 64px;
 }
 
 /* ── Light Theme ── */
@@ -1656,7 +1656,13 @@ html, body {
 
 /* ── Editor scroll ── */
 .editor-scroll {
-  flex: 1; overflow-y: auto; padding: 28px 28px 100px;
+  flex: 1; overflow-y: auto;
+  /* Use env() so notched iPhones get the extra safe-area inset on top of
+     the base padding — this alone stops content from hitting the screen edge */
+  padding-top: 28px;
+  padding-bottom: 100px;
+  padding-left:  max(20px, env(safe-area-inset-left,  0px) + 20px);
+  padding-right: max(20px, env(safe-area-inset-right, 0px) + 20px);
   display: flex; flex-direction: column; align-items: center;
   box-sizing: border-box;
 }
@@ -2451,9 +2457,9 @@ html, body {
   color: var(--text3); margin-bottom: 10px; align-self: flex-start;
 }
 .pdf-preview-page {
-  width: 210px; min-height: 272px; background: #fff; border-radius: 4px;
+  width: 210px; min-height: 272px; max-height: 520px; background: #fff; border-radius: 4px;
   box-shadow: 0 2px 12px rgba(0,0,0,.15); padding: 18px 16px; font-size: 7px;
-  line-height: 1.35; color: #111; overflow: hidden; position: relative;
+  line-height: 1.35; color: #111; overflow-y: auto; position: relative;
   font-family: 'Courier Prime', monospace; margin-bottom: 8px; flex-shrink: 0;
 }
 .pdf-preview-page.notes-mode { display: flex; }
@@ -2461,13 +2467,18 @@ html, body {
 .pdf-preview-page .pp-notes { flex: 1; border-left: 1px solid #ddd; padding-left: 6px; }
 .pdf-preview-page .pp-note-line { border-bottom: 1px solid #eee; height: 11px; }
 .pp-scene { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 2px 5px; margin: 6px 0 3px; border: 1px solid; border-radius: 3px; font-size: 6.5px; }
-.pp-action { margin: 3px 0; font-size: 6.5px; color: #333; }
+.pp-action { margin: 1px 0; font-size: 6.5px; color: #333; }
 .pp-char { font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 6px; margin: 4px 0 1px; text-align: center; position: relative; }
-.pp-dial { font-size: 6.5px; color: #333; margin-bottom: 3px; text-align: center; }
-.pp-dialogue-wrap { margin: 3px 0; text-align: center; padding-left: 8px; position: relative; }
+.pp-dial { font-size: 6.5px; color: #333; margin-bottom: 3px; }
+/* Non-screenplay dialogue: left-column accent bar + centred text */
+.pp-dialogue-wrap { margin: 4px 0; padding-left: 8px; position: relative; }
 .pp-dialogue-wrap .pp-char::before { content: ''; position: absolute; left: -8px; top: 0; bottom: 0; width: 2px; border-radius: 1px; background: currentColor; }
-.pp-dialogue-wrap.screenplay { padding-left: 0; }
+.pp-dialogue-wrap .pp-dial { text-align: left; }
+/* Screenplay dialogue: proper column — char centred, dialogue left-aligned in indented block */
+.pp-dialogue-wrap.screenplay { padding-left: 18px; padding-right: 24px; }
+.pp-dialogue-wrap.screenplay .pp-char { text-align: center; }
 .pp-dialogue-wrap.screenplay .pp-char::before { display: none; }
+.pp-dialogue-wrap.screenplay .pp-dial { text-align: left; }
 .pp-transition { text-align: right; font-weight: 700; text-transform: uppercase; font-size: 6px; margin: 5px 0; }
 .pp-title-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100%; gap: 4px; }
 .pp-title-page.left { align-items: flex-start; }
@@ -3758,6 +3769,18 @@ mark.bd-mark.hovered{
 /* Responsive: shrink pages on small screens */
 @media (max-width: 900px) {
   .script-page-wrap { width: calc(100vw - 32px); padding: 60px 40px 60px 60px; min-height: auto; }
+}
+
+/* ── Narrow phones: keep every block container clear of screen edges ── */
+@media (max-width: 480px) {
+  .editor-scroll {
+    padding-left:  max(12px, env(safe-area-inset-left,  0px) + 12px);
+    padding-right: max(12px, env(safe-area-inset-right, 0px) + 12px);
+  }
+  /* Tighten inner content padding symmetrically so blocks still have air */
+  :root   { --d-editor-pad: 0 36px 0 36px; }
+  [data-density="compact"]   { --d-editor-pad: 0 32px 0 32px; }
+  [data-density="extended"]  { --d-editor-pad: 0 44px 0 44px; }
 }
 
 /* ══ DOCS + SHEETS ══ */
@@ -6488,6 +6511,12 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
               <button class="pdf-opt" data-pdfopt="titlepage" data-val="no" onclick="setPdfOpt(this)">No</button>
             </div>
           </div>
+          <div class="pdf-row" id="pdfAuthorRow">
+            <span class="pdf-label">Author</span>
+            <input id="pdfAuthorInput" type="text" placeholder="Written by…"
+              style="flex:1;padding:5px 10px;border:1.5px solid var(--border2);border-radius:8px;background:var(--bg2);color:var(--text);font-family:var(--font);font-size:12px;outline:none;"
+              oninput="_pdfOpts.author=this.value;updatePdfPreview()">
+          </div>
           <div class="pdf-row" id="pdfTitleLayoutRow">
             <span class="pdf-label">Layout</span>
             <div class="pdf-title-layouts">
@@ -6520,6 +6549,16 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
           </div>
         </div>
 
+        <!-- SPACING -->
+        <div class="pdf-section">
+          <div class="pdf-section-title">Line Spacing</div>
+          <div class="pdf-options">
+            <button class="pdf-opt" data-pdfopt="lineSpacing" data-val="tight" onclick="setPdfOpt(this)">Tight</button>
+            <button class="pdf-opt active" data-pdfopt="lineSpacing" data-val="normal" onclick="setPdfOpt(this)">Normal</button>
+            <button class="pdf-opt" data-pdfopt="lineSpacing" data-val="loose" onclick="setPdfOpt(this)">Loose</button>
+          </div>
+        </div>
+
         <!-- PHOTO -->
         <div class="pdf-section">
           <div class="pdf-section-title">Cover Photo</div>
@@ -6549,10 +6588,25 @@ animation: homeCardIn .5s cubic-bezier(.4,0,.2,1) both;
           </div>
         </div>
 
-        <!-- GENERATE -->
-        <button class="pdf-generate-btn" onclick="generatePdf()">
-          Generate PDF
-        </button>
+        <!-- GENERATE / EXPORT -->
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <button class="pdf-generate-btn" onclick="generatePdf()">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" style="margin-right:6px;vertical-align:middle"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15l3 3 3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Generate PDF
+          </button>
+          <div style="display:flex;gap:8px;">
+            <button onclick="closeModal('pdfExportModal');exportScript('wrotenote');"
+              style="flex:1;padding:8px 12px;border-radius:var(--r-card);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.5"/></svg>
+              .wrotenote
+            </button>
+            <button onclick="closeModal('pdfExportModal');exportScriptTxt();"
+              style="flex:1;padding:8px 12px;border-radius:var(--r-card);border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;">
+              <svg width="13" height="13" fill="none" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              .txt
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- RIGHT: Preview -->
@@ -6802,7 +6856,23 @@ function loadScripts() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
   catch { return []; }
 }
-function saveScripts(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+function saveScripts(s) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    return true;
+  } catch (err) {
+    // Most common failure is QuotaExceededError. Surface it so the user
+    // knows their save didn't land — silent failure here was the kind of
+    // bug that destroys writers' work.
+    console.error('saveScripts failed:', err);
+    try {
+      if (typeof showSaveToast === 'function') {
+        showSaveToast('Save failed — storage full');
+      }
+    } catch(e) {}
+    return false;
+  }
+}
 
 function renderScripts() {
   const scripts = loadScripts();
@@ -7541,6 +7611,20 @@ function launchEditor(script) {
     _undoStack = [snapshotEditor()];
     updateUndoButtons();
   }, 50);
+
+  // Watch editorContent for ANY change (typing, new blocks, deletes)
+  // MutationObserver catches everything input events miss (e.g. programmatic DOM inserts)
+  const _ec = document.getElementById('editorContent');
+  if (_ec) {
+    if (window._editorObserver) window._editorObserver.disconnect();
+    window._editorObserver = new MutationObserver(() => scheduleSave());
+    window._editorObserver.observe(_ec, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: false
+    });
+  }
 }
 
 // ── AUTO-CREATE SCENE BLOCK ON TYPING IN EMPTY EDITOR ──
@@ -7920,6 +8004,10 @@ function collectCastFromUI() {
 }
 
 function closeEditor() {
+  // Stop observing and flush any pending save immediately
+  if (window._editorObserver) { window._editorObserver.disconnect(); window._editorObserver = null; }
+  clearTimeout(_structuralSaveTimer);
+  if (_editorScript) saveCurrentEditor(true);
   document.getElementById('panel-editor').classList.remove('active');
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-script').classList.add('active');
@@ -8454,6 +8542,7 @@ function _insertConvertedBlock(container, insertRef, type, text, charName) {
     }
   }
   undoPushSnapshot();
+  scheduleSave();
 }
 
 function insertElement(type) {
@@ -8950,6 +9039,7 @@ function insertElement(type) {
   renumberScenes();
   // If we just inserted a scene, adopt orphan element-rows that follow it
   if (type === 'scene') _adoptOrphanRows();
+  scheduleSave();
 }
 
 /**
@@ -8961,9 +9051,48 @@ function _adoptOrphanRows() {
   const content = document.getElementById('editorContent');
   if (!content) return;
 
-  let currentScene = null;
-  const children = [...content.children];
+  // ── STAGE 1: un-nest any scene-groups that ended up inside another
+  // scene-group.  No code path should ever produce this structure, but if
+  // one does (as the old auto-convert path did), the nested group becomes
+  // invisible to snapshotEditor() and its contents are silently dropped
+  // on save.  Pull every nested scene-group up to the content root, placed
+  // immediately after its (former) parent so visual order is preserved.
+  // Repeats until there's nothing left to un-nest.
+  let safety = 64;
+  while (safety-- > 0) {
+    const nested = content.querySelector('.scene-group .scene-group');
+    if (!nested) break;
+    const parentScene = nested.parentElement.closest('.scene-group');
+    if (!parentScene || parentScene === nested) break;
+    // Find the top-level container that holds the parent scene
+    // (could be content itself or a .script-page-wrap in page view).
+    const topHolder = parentScene.parentElement;
+    if (!topHolder) break;
+    // Move nested scene out, placed right after its former parent scene.
+    // Also insert a scene-spacer so it visually separates correctly.
+    const spacer = document.createElement('div');
+    spacer.className = 'scene-spacer';
+    if (parentScene.nextSibling) {
+      topHolder.insertBefore(spacer, parentScene.nextSibling);
+      topHolder.insertBefore(nested, spacer.nextSibling);
+    } else {
+      topHolder.appendChild(spacer);
+      topHolder.appendChild(nested);
+    }
+  }
 
+  // ── STAGE 2: adopt orphan element-rows into their preceding scene-group.
+  // Flatten page-view wrappers so adoption works in page view.
+  const children = [];
+  [...content.children].forEach(child => {
+    if (child.classList.contains('script-page-wrap')) {
+      children.push(...child.children);
+    } else {
+      children.push(child);
+    }
+  });
+
+  let currentScene = null;
   for (const child of children) {
     if (child.classList.contains('scene-group')) {
       currentScene = child;
@@ -8977,6 +9106,15 @@ function _adoptOrphanRows() {
 /* ════════════════════════════
    SAVE
 ════════════════════════════ */
+/* Debounced structural save — called after any insert/delete/convert so
+   changes are persisted without hammering localStorage on every keystroke. */
+let _structuralSaveTimer = null;
+function scheduleSave() {
+  clearTimeout(_structuralSaveTimer);
+  _structuralSaveTimer = setTimeout(() => {
+    if (_editorScript) saveCurrentEditor(true);
+  }, 800);
+}
 /* ════════════════════════════════════
    SAVE / SERIALIZE  (JSON snapshot)
 ════════════════════════════════════ */
@@ -8988,7 +9126,17 @@ function snapshotEditor() {
 
   const nodes = [];
 
+  // Flatten .script-page-wrap so snapshot works in page view too
+  const snapChildren = [];
   [...content.children].forEach(child => {
+    if (child.classList.contains('script-page-wrap')) {
+      snapChildren.push(...child.children);
+    } else {
+      snapChildren.push(child);
+    }
+  });
+
+  snapChildren.forEach(child => {
     if (child.classList.contains('scene-group')) {
       const sceneNode = {
         type: 'scene-group',
@@ -9000,14 +9148,40 @@ function snapshotEditor() {
         blockColor: child.dataset.blockColor || ''
       };
 
-      [...child.children].forEach(row => {
-        if (row.classList.contains('scene-heading-row')) {
-          const sl = row.querySelector('.scene-slugline');
-          sceneNode.heading = sl ? sl.textContent.trim() : '';
-        } else if (row.classList.contains('element-row')) {
-          sceneNode.rows.push(snapshotRow(row));
-        }
-      });
+      // Walk descendants depth-first so that even if something got nested
+      // (heading row, element-row, or even another scene-group we failed
+      // to un-nest), we still capture every heading and row.  We stop
+      // descending into any inner .scene-group — its contents will be
+      // captured separately by the outer loop after un-nesting on next save,
+      // and any heading text it contains is also pulled here so it isn't
+      // lost in the meantime.
+      const walk = (el) => {
+        [...el.children].forEach(node => {
+          if (node.classList.contains('scene-heading-row')) {
+            const sl = node.querySelector('.scene-slugline');
+            const txt = sl ? sl.textContent.trim() : '';
+            // First heading row wins; any later ones (from a nested group)
+            // are captured into rows as a fallback so the text isn't lost.
+            if (sceneNode.heading === null) {
+              sceneNode.heading = txt;
+            } else if (txt) {
+              sceneNode.rows.push({ type: 'action', text: txt });
+            }
+          } else if (node.classList.contains('element-row')) {
+            sceneNode.rows.push(snapshotRow(node));
+          } else if (node.classList.contains('scene-group')) {
+            // Nested scene-group (shouldn't happen — _adoptOrphanRows
+            // un-nests these — but if one slips through, walk it anyway
+            // so its text isn't silently dropped).
+            walk(node);
+          }
+          // scene-spacers and unknown elements are skipped
+        });
+      };
+      walk(child);
+
+      // Heading default — if no heading row was found at all, fall back to ''
+      if (sceneNode.heading === null) sceneNode.heading = '';
 
       nodes.push(sceneNode);
 
@@ -9219,7 +9393,18 @@ function serializeEditorContent() {
     if (note) { lines.push('/* ' + note.textContent.trim() + ' */'); lines.push('+'); }
   }
 
+  // Flatten page-view wrappers (.script-page-wrap) so serialization works
+  // whether or not page view is active
+  const topChildren = [];
   [...content.children].forEach(child => {
+    if (child.classList.contains('script-page-wrap')) {
+      topChildren.push(...child.children);
+    } else {
+      topChildren.push(child);
+    }
+  });
+
+  topChildren.forEach(child => {
     if (child.classList.contains('scene-group')) {
       const slugline = child.querySelector('.scene-slugline');
       if (slugline) lines.push(slugline.textContent.trim().toUpperCase());
@@ -9310,7 +9495,6 @@ document.addEventListener('input', function(e) {
     const row = el.closest('.element-row');
     if (!row) return;
     const parent = row.parentElement;
-    const ref = row.nextSibling;
 
     // Build scene group with the typed text (uppercase) as the slugline
     const spacer = document.createElement('div');
@@ -9337,10 +9521,43 @@ document.addEventListener('input', function(e) {
     </div>`;
     const group = wrapper.firstElementChild;
 
-    if (ref) { parent.insertBefore(spacer, ref); parent.insertBefore(group, ref); }
-    else      { parent.appendChild(spacer); parent.appendChild(group); }
+    // ── FIX: if the action block is inside a scene-group, the new scene must be
+    // inserted at the content root level (after that scene-group), NOT nested
+    // inside it.  The old code used `parent.appendChild(group)` which put the
+    // new scene-group as a child of the existing one — snapshotEditor() never
+    // saw it and it was silently dropped from _blocks on every save.
+    const content = document.getElementById('editorContent');
+    const containingScene = parent.classList.contains('scene-group') ? parent : null;
 
-    row.remove();
+    if (containingScene && content) {
+      // Collect any element-rows that come after `row` in the scene-group
+      // and move them into the new scene (scene-split behaviour).
+      const rowsToMove = [];
+      let sib = row.nextElementSibling;
+      while (sib) {
+        const next = sib.nextElementSibling;
+        if (sib.classList.contains('element-row')) rowsToMove.push(sib);
+        sib = next;
+      }
+      row.remove();
+      rowsToMove.forEach(r => group.appendChild(r));
+
+      // Insert spacer + new scene-group after the containing scene-group
+      const afterRef = containingScene.nextSibling;
+      if (afterRef) {
+        content.insertBefore(spacer, afterRef);
+        content.insertBefore(group, spacer.nextSibling);
+      } else {
+        content.appendChild(spacer);
+        content.appendChild(group);
+      }
+    } else {
+      // Original path: action block is already at the content root level
+      const ref = row.nextSibling;
+      row.remove();
+      if (ref) { parent.insertBefore(spacer, ref); parent.insertBefore(group, ref); }
+      else      { parent.appendChild(spacer); parent.appendChild(group); }
+    }
 
     // Position cursor at end of slugline so user keeps typing the location
     const slugline = group.querySelector('.scene-slugline');
@@ -9352,6 +9569,8 @@ document.addEventListener('input', function(e) {
 
     renumberScenes();
     _adoptOrphanRows();
+    undoPushSnapshot();
+    scheduleSave();
     return;
   }
 
@@ -9849,6 +10068,8 @@ let _pdfOpts = {
   titleLayout: 'centered',
   font: 'Courier Prime',
   fontSize: 'medium',
+  lineSpacing: 'normal',
+  author: '',
   photo: null // base64
 };
 
@@ -9950,9 +10171,11 @@ function updatePdfPreview() {
 
   // Apply font and size
   const sizeScale = { small: 0.85, medium: 1, large: 1.18 }[_pdfOpts.fontSize] || 1;
+  const lineH = { tight: 1.2, normal: 1.35, loose: 1.6 }[_pdfOpts.lineSpacing] || 1.35;
   titlePage.style.fontFamily = `'${font}', monospace`;
   bodyPage.style.fontFamily = `'${font}', monospace`;
   bodyPage.style.fontSize = (7 * sizeScale) + 'px';
+  bodyPage.style.lineHeight = lineH;
 
   // ── Title page ──
   if (_pdfOpts.titlepage === 'yes') {
@@ -9966,77 +10189,65 @@ function updatePdfPreview() {
       ? `<div class="pp-line" style="width:60%;"></div>` : '';
     const subtitleHTML = layout !== 'minimal'
       ? `<div class="pp-subtitle">${escHtml(_editorScript?.format || 'Screenplay')}</div>` : '';
+    const authorHTML = _pdfOpts.author
+      ? `<div class="pp-subtitle" style="margin-top:8px;color:#555;">Written by ${escHtml(_pdfOpts.author)}</div>` : '';
     const padding = layout === 'minimal' ? 'padding-top:80px;' : '';
 
     titlePage.innerHTML = `<div class="pp-title-page${layout === 'left' ? ' left' : ''}" style="text-align:${textAlign};align-items:${align};${padding}">
       ${lineHTML}${photoHTML}
       <div class="pp-title" style="color:${accent}">${escHtml(title)}</div>
-      ${subtitleHTML}${lineHTML}
+      ${subtitleHTML}${authorHTML}${lineHTML}
       <div class="pp-subtitle" style="margin-top:12px;">WroteNote</div>
     </div>`;
   } else {
     titlePage.style.display = 'none';
   }
 
-  // ── Body page ──
+  // ── Body page — full document, no artificial item cap ──
   const content = document.getElementById('editorContent');
   if (!content) { bodyPage.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px 0;font-size:8px;">No content</div>'; return; }
 
   let html = '';
-  let count = 0;
-  const maxItems = 8; // keep preview compact
 
   const groups = content.querySelectorAll('.scene-group');
   for (const group of groups) {
-    if (count >= maxItems) break;
     const slug = group.querySelector('.scene-slugline');
     if (slug) {
       const sceneColor = isBW ? '#000' : accent;
-      html += `<div class="pp-scene" style="color:${sceneColor};border-color:${sceneColor};">${slug.textContent.trim().substring(0, 40)}</div>`;
-      count++;
+      html += `<div class="pp-scene" style="color:${sceneColor};border-color:${sceneColor};">${escHtml(slug.textContent.trim())}</div>`;
     }
     for (const row of group.querySelectorAll('.element-row')) {
-      if (count >= maxItems) break;
       const action = row.querySelector('.block-action');
       const wrap = row.querySelector('.block-dialogue-wrap');
       const transition = row.querySelector('.block-transition');
       const note = row.querySelector('.block-note');
 
       if (action) {
-        const t = action.innerText.trim().substring(0, 80);
-        html += `<div class="pp-action">${escHtml(t)}${t.length >= 80 ? '…' : ''}</div>`;
-        count++;
+        html += `<div class="pp-action">${escHtml(action.innerText.trim())}</div>`;
       } else if (wrap) {
         const charEl = wrap.querySelector('.block-char-name');
         const charName = charEl ? charEl.innerText.trim() : '';
         const charColor = isBW ? '#000' : (charName ? getCharColor(charName).name : '#000');
         const dialEl = wrap.querySelector('.block-dialogue-text');
-        const dialText = dialEl ? dialEl.innerText.trim().substring(0, 60) : '';
-        if (isScreenplay) {
-          html += `<div class="pp-dialogue-wrap screenplay">
-            <div class="pp-char" style="color:${charColor}">${escHtml(charName)}</div>
-            <div class="pp-dial">${escHtml(dialText)}${dialText.length >= 60 ? '…' : ''}</div>
-          </div>`;
-        } else {
-          html += `<div class="pp-dialogue-wrap">
-            <div class="pp-char" style="color:${charColor}">${escHtml(charName)}</div>
-            <div class="pp-dial">${escHtml(dialText)}${dialText.length >= 60 ? '…' : ''}</div>
-          </div>`;
-        }
-        count++;
+        const dialText = dialEl ? dialEl.innerText.trim() : '';
+        // screenplay: char centred, dialogue left-aligned in indented column
+        // other: accent-bar left column
+        html += `<div class="pp-dialogue-wrap${isScreenplay ? ' screenplay' : ''}">
+          <div class="pp-char" style="color:${charColor}">${escHtml(charName)}</div>
+          <div class="pp-dial">${escHtml(dialText)}</div>
+        </div>`;
       } else if (transition) {
-        html += `<div class="pp-transition">${transition.innerText.trim().substring(0, 30)}</div>`;
-        count++;
+        html += `<div class="pp-transition">${escHtml(transition.innerText.trim())}</div>`;
       } else if (note) {
-        html += `<div class="pp-action" style="font-style:italic;color:${isBW ? '#666' : '#d4a017'};font-size:6px;">${note.innerText.trim().substring(0, 60)}…</div>`;
-        count++;
+        html += `<div class="pp-action" style="font-style:italic;color:${isBW ? '#666' : '#d4a017'};font-size:6px;">${escHtml(note.innerText.trim())}</div>`;
       }
     }
   }
 
   if (isNotes) {
     bodyPage.classList.add('notes-mode');
-    const noteLines = Array(Math.max(12, count * 3)).fill('<div class="pp-note-line"></div>').join('');
+    const lineCount = Math.max(20, html.split('\n').length * 3);
+    const noteLines = Array(lineCount).fill('<div class="pp-note-line"></div>').join('');
     bodyPage.innerHTML = `<div class="pp-script">${html}</div><div class="pp-notes">${noteLines}</div>`;
   } else {
     bodyPage.classList.remove('notes-mode');
@@ -10072,6 +10283,7 @@ function generatePdf() {
       ${photoHTML}
       <h1 style="font-size:${layout === 'minimal' ? '20px' : '28px'};font-weight:700;margin:0;color:${isBW ? '#000' : accentColor};">${escHtml(title)}</h1>
       ${layout !== 'minimal' ? `<p style="font-size:13px;color:#666;margin-top:8px;">${escHtml(_editorScript.format || 'Screenplay')}</p>` : ''}
+      ${authorLine}
       ${lineHTML}
       <p style="font-size:11px;color:#999;margin-top:40px;">Generated from WroteNote</p>
     </div>
@@ -10107,25 +10319,67 @@ function generatePdf() {
   const fontSizePx = { small: 10, medium: 12, large: 14 }[_pdfOpts.fontSize] || 12;
   const charSizePx = Math.round(fontSizePx * 0.9);
   const sceneSizePx = fontSizePx;
+  const lineHeight = { tight: 1.35, normal: 1.6, loose: 1.9 }[_pdfOpts.lineSpacing] || 1.6;
+  const authorLine = _pdfOpts.author
+    ? `<p style="font-size:12px;color:#555;margin-top:14px;">Written by ${escHtml(_pdfOpts.author)}</p>` : '';
 
   const pageCSS = `
     @page { size: letter; margin: 1in; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: '${font}', 'Courier New', monospace; font-size: ${fontSizePx}px; color: #000; line-height: 1.5; }
+    body { font-family: '${font}', 'Courier New', monospace; font-size: ${fontSizePx}px; color: #000; line-height: ${lineHeight}; }
     ${notesColumn}
     .pdf-scene {
       font-size: ${sceneSizePx}px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
-      padding: 6px 12px; margin: 18px 0 8px; border: 1.5px solid;
+      padding: 6px 12px; margin: 20px 0 10px; border: 1.5px solid;
       border-radius: 6px; page-break-after: avoid;
     }
-    .pdf-action { margin: 8px 0; line-height: 1.6; }
-    .pdf-dialogue { margin: 8px 0 8px ${format === 'screenplay' ? '120px' : '0'}; position: relative; ${format !== 'screenplay' ? 'padding-left: 14px;' : ''} }
-    .pdf-char-name { font-size: ${charSizePx}px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 2px; text-align: center; position: relative; }
+    /* Action paragraphs: tight spacing between consecutive blocks,
+       so a block of action reads as one flowing unit */
+    .pdf-action { margin: 3px 0; line-height: ${lineHeight}; }
+
+    /* Dialogue / character blocks: indented in screenplay format.
+       Give them noticeably more breathing room than plain action so
+       the reader's eye can clearly see the shift in block type.
+       SCREENPLAY: standard WGA column positioning —
+         • left indent  ~1" (96px) from content edge
+         • right margin ~1.75" (168px) from content edge
+         • character name: centred within that ~3.75" column
+         • dialogue text: LEFT-aligned within that column (not centred on page) */
+    .pdf-dialogue {
+      margin: 14px 0 14px ${format === 'screenplay' ? '96px' : '0'};
+      ${format === 'screenplay' ? 'margin-right: 168px;' : ''}
+      position: relative;
+      ${format !== 'screenplay' ? 'padding-left: 14px;' : ''}
+    }
+    .pdf-char-name {
+      font-size: ${charSizePx}px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; margin-bottom: 2px; text-align: center; position: relative;
+    }
     ${format !== 'screenplay' ? `.pdf-char-name::before { content: ''; position: absolute; left: -14px; top: 0; bottom: 0; width: 2.5px; border-radius: 2px; background: currentColor; }` : ''}
-    .pdf-dial-text { font-size: ${fontSizePx}px; line-height: 1.6; color: ${isBW ? '#000' : '#222'}; text-align: center; }
-    .pdf-paren { font-size: ${charSizePx}px; font-style: italic; color: #666; margin-bottom: 2px; text-align: center; }
-    .pdf-transition { text-align: right; font-size: ${charSizePx}px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin: 12px 0; }
-    .pdf-note { font-size: ${charSizePx}px; font-style: italic; color: ${isBW ? '#555' : '#d4a017'}; margin: 6px 0; border-left: 2px solid ${isBW ? '#999' : '#d4a017'}; padding-left: 10px; }
+    /* Dialogue text: left-aligned in its indented column — centred text is NOT standard screenplay */
+    .pdf-dial-text { font-size: ${fontSizePx}px; line-height: ${lineHeight}; color: ${isBW ? '#000' : '#222'}; text-align: left; }
+    .pdf-paren { font-size: ${charSizePx}px; font-style: italic; color: #666; margin-bottom: 2px; text-align: ${format === 'screenplay' ? 'center' : 'left'}; }
+
+    /* Transitions: right-aligned, always clearly separated on both sides */
+    .pdf-transition {
+      text-align: right; font-size: ${charSizePx}px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em; margin: 16px 0;
+    }
+    .pdf-note {
+      font-size: ${charSizePx}px; font-style: italic;
+      color: ${isBW ? '#555' : '#d4a017'}; margin: 6px 0;
+      border-left: 2px solid ${isBW ? '#999' : '#d4a017'}; padding-left: 10px;
+    }
+
+    /* ── Cross-type gaps ── */
+    .pdf-action + .pdf-dialogue   { margin-top: 16px; }
+    .pdf-dialogue + .pdf-action   { margin-top: 12px; }
+    .pdf-action + .pdf-transition { margin-top: 14px; }
+    .pdf-transition + .pdf-action { margin-top: 12px; }
+    .pdf-action + .pdf-note       { margin-top: 10px; }
+    .pdf-note + .pdf-action       { margin-top: 10px; }
+    .pdf-dialogue + .pdf-note     { margin-top: 10px; }
+    .pdf-note + .pdf-dialogue     { margin-top: 16px; }
     .pdf-title-page { page-break-after: always; }
     .pdf-title-page h1 { font-family: '${font}', sans-serif; }
     img { max-width: 100%; }
@@ -21234,45 +21488,76 @@ window.openScriptPreview = function(i) {
   var scenes = [], chars = new Set(), locs = new Set();
   var dayCount = 0, nightCount = 0, otherCount = 0;
 
-  lines.forEach(function(line) {
-    var t = line.trim().toUpperCase();
-    if (/^(INT\.|EXT\.|INT\/EXT\.|I\/E\.|EST\.)/.test(t)) {
-      scenes.push(t);
-      // Day/Night
-      if (/\bDAY\b|\bDAWN\b|\bMORNING\b|\bNOON\b|\bSUNRISE\b|\bSUNSET\b|\bGOLDEN HOUR\b/.test(t)) dayCount++;
-      else if (/\bNIGHT\b|\bEVENING\b|\bDUSK\b|\bMIDNIGHT\b|\bLATE\b/.test(t)) nightCount++;
-      else otherCount++;
-
-      // Location (strip INT./EXT. and time-of-day)
-      var loc = t
-        .replace(/^(INT\.?\/EXT\.?|INT\.?|EXT\.?|I\/E\.?|EST\.?)\s*/i, '')
-        .replace(/\s*[-—–]\s*(DAY|NIGHT|DAWN|DUSK|MORNING|EVENING|NOON|MIDNIGHT|LATER|CONTINUOUS|MOMENTS LATER).*$/i, '')
-        .trim();
-      if (loc) locs.add(loc);
-    }
-  });
-
-  // Characters — from blocks first, fallback to text scan
-  if (blocks.length) {
-    // Try to extract from blocks if available
-    var parser = new DOMParser();
-    // blocks are DOM snapshots — parse for char names
-  }
-  // Text scan: ALL-CAPS lines with 1-4 words after action/scene
-  var prevWasScene = false;
-  lines.forEach(function(line) {
-    var t = line.trim();
-    if (/^(INT\.|EXT\.)/.test(t.toUpperCase())) { prevWasScene = true; return; }
+  // ── Helper: classify a heading as day / night / other and extract location ──
+  function _spmAnalyzeHeading(headingRaw) {
+    var t = (headingRaw || '').toUpperCase().trim();
     if (!t) return;
-    // Character name: ALL CAPS, 1-5 words, no sentence punctuation, >1 char
-    var up = t.toUpperCase();
-    if (t === up && t.length > 1 && t.length < 45 && !t.includes('.') &&
-        !/[?!,;:]/.test(t) && t.split(/\s+/).length <= 5 &&
-        !/^(FADE|CUT|SMASH|DISSOLVE|MATCH|THE END|END\.|CONTINUED)/.test(t)) {
-      var base = t.replace(/\s*\(.*?\)\s*$/, '').trim();
-      if (base) chars.add(base);
-    }
-  });
+    scenes.push(t);
+    if (/\bDAY\b|\bDAWN\b|\bMORNING\b|\bNOON\b|\bSUNRISE\b|\bSUNSET\b|\bGOLDEN HOUR\b/.test(t)) dayCount++;
+    else if (/\bNIGHT\b|\bEVENING\b|\bDUSK\b|\bMIDNIGHT\b|\bLATE\b/.test(t)) nightCount++;
+    else otherCount++;
+
+    var loc = t
+      .replace(/^(INT\.?\/EXT\.?|INT\.?|EXT\.?|I\/E\.?|EST\.?)\s*/i, '')
+      .replace(/\s*[-—–]\s*(DAY|NIGHT|DAWN|DUSK|MORNING|EVENING|NOON|MIDNIGHT|LATER|CONTINUOUS|MOMENTS LATER).*$/i, '')
+      .trim();
+    if (loc) locs.add(loc);
+  }
+
+  // ── Prefer _blocks (authoritative DOM snapshot). Falls back to text scan. ──
+  if (blocks && blocks.length) {
+    blocks.forEach(function(node) {
+      if (!node || typeof node !== 'object') return;
+      if (node.type === 'scene-group') {
+        if (node.heading !== null && node.heading !== undefined) {
+          _spmAnalyzeHeading(node.heading);
+        }
+        // Pull character names from dialogue rows inside the scene
+        (node.rows || []).forEach(function(row) {
+          if (!row || !row.type) return;
+          if (row.type === 'character' || row.type === 'dialogue') {
+            // .text may contain HTML (innerHTML) — strip tags
+            var raw = (row.text || '').replace(/<[^>]+>/g, ' ').trim();
+            // Character row text comes through directly; for dialogue rows
+            // there's usually a preceding character row, but we still try to
+            // catch ALL-CAPS character names that landed in either.
+            var lines2 = raw.split(/\n+/);
+            lines2.forEach(function(ln) {
+              var t = ln.trim();
+              var up = t.toUpperCase();
+              if (t && t === up && t.length > 1 && t.length < 45 &&
+                  !t.includes('.') && !/[?!,;:]/.test(t) &&
+                  t.split(/\s+/).length <= 5 &&
+                  !/^(FADE|CUT|SMASH|DISSOLVE|MATCH|THE END|END\.|CONTINUED)/.test(t)) {
+                var base = t.replace(/\s*\(.*?\)\s*$/, '').trim();
+                if (base) chars.add(base);
+              }
+            });
+          }
+        });
+      }
+    });
+  } else {
+    // Legacy text scan
+    lines.forEach(function(line) {
+      var t = line.trim().toUpperCase();
+      if (/^(INT\.|EXT\.|INT\/EXT\.|I\/E\.|EST\.)/.test(t)) _spmAnalyzeHeading(t);
+    });
+
+    var prevWasScene = false;
+    lines.forEach(function(line) {
+      var t = line.trim();
+      if (/^(INT\.|EXT\.)/.test(t.toUpperCase())) { prevWasScene = true; return; }
+      if (!t) return;
+      var up = t.toUpperCase();
+      if (t === up && t.length > 1 && t.length < 45 && !t.includes('.') &&
+          !/[?!,;:]/.test(t) && t.split(/\s+/).length <= 5 &&
+          !/^(FADE|CUT|SMASH|DISSOLVE|MATCH|THE END|END\.|CONTINUED)/.test(t)) {
+        var base = t.replace(/\s*\(.*?\)\s*$/, '').trim();
+        if (base) chars.add(base);
+      }
+    });
+  }
 
   var wc   = content.trim().split(/\s+/).filter(Boolean).length;
   var pgs  = Math.round(wc / 180) || 1;
